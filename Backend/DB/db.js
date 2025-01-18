@@ -13,4 +13,4 @@ connectToDB = () =>{
 
 }
 
-module.exports=connectToDB;
+module.exports=connectToDB; //default export
