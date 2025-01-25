@@ -2,13 +2,13 @@ const mongoose = require('mongoose')
 const url = process.env.MONGO_URI
 
 
-connectToDB = () =>{
+const connectToDB = () =>{
     mongoose.connect(url)
     .then(()=>{
-        console.log("mongoDB is successfully conncected")
+        console.log("mongoDB is successfully connected:");
     })
     .catch((error)=>{
-        console.log("error in connecting the mongodb",error.message)
+        console.log("error in connecting the mongodb",error.message); 
     })
 
 }

@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
         firstname:{
             type:String,
             required:true,
-            minlength:[3,"first  name should be greater than 3 character"]
+            minlength:[3,"first  name should be greater than 3 character"]  //enums
         },
         lastname:{
             type: String,
@@ -19,12 +19,11 @@ const userSchema = mongoose.Schema({
     email:{
         type:String,
         required:true
-    }
-    ,
+    },
     password:{
         type:String,
         required:true,
-        select:false
+        select:false //this is a special query so that the password will not be come in any find request
     },
     socketId:{
         type:String
@@ -42,11 +41,11 @@ return await bcrypt.compare(password,this.password)
 }
 
 //can be called directly by the usermodel
-userSchema.static.hashedPassword= async function(password){
+userSchema.statics.hashedPassword= async function(password){
 return await bcrypt.hash(password,10);
 }
 
 
 const userModel = mongoose.model('userModel',userSchema);
 
-module.exports=userModel
+module.exports=userModel //default export

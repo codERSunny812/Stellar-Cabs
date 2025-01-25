@@ -12,7 +12,7 @@ app.use(cors())//use the cors
 app.use(express.json()) //to parse json request
 app.use(express.urlencoded({extended:true}))
 
-app.use('/users',userRouter)
+app.use('/users',userRouter) //middle ware
 
 app.get('/',(req,res)=>{
     res.send("hello from the server")
