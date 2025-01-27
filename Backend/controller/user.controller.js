@@ -1,6 +1,7 @@
 const userModel = require('../models/user.model')
 const {validationResult} = require('express-validator')
 const { createUser } = require('../service/user.service')
+const blackListedTokenModel = require('../models/blackListedToken.model')
 
 //this is the basic  user route: 
 module.exports.routeInfo=(req,res)=>{
@@ -26,6 +27,7 @@ module.exports.registerUser = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "Email already exists" });
         }
+
 
         
         const hashedPassword = await userModel.hashedPassword(password);
@@ -113,6 +115,8 @@ module.exports.loginUser = async(req,res,next)=>{
 
     console.log("token",token)
 
+    res.cookie("token",token)
+
     console.log("send the response")
     
     // send the response``
@@ -126,7 +130,22 @@ module.exports.loginUser = async(req,res,next)=>{
 
 
 
+//only authenticated user will have to acess this page
+module.exports.getUserProfile = async(req,res,next)=>{
 
-module.exports.getUserProfile = async(next,req,res,err)=>{
+    res.status(200).json({
+        message:"this is the user profile",
+        data:req.user
+    })
+}
 
+
+module.exports.logoutUser = async (req,res,next) =>{
+    res.clearCookie("token");
+    const token = req.cookies?.token || req.headers.authorization.split(' ')[1];
+
+    await blackListedTokenModel.create({ token });
+
+
+    return res.status(200).json({message:"user logged out successfully"})
 }

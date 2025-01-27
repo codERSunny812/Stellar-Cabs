@@ -5,12 +5,13 @@ const cors = require('cors')
 const app = express()
 const connectToDb = require('./DB/db') //default import
 const userRouter = require('./Routes/user.routes')
-
+const cookieParser = require('cookie-parser')
 connectToDb() //function to connect with DB
 
 app.use(cors())//use the cors 
 app.use(express.json()) //to parse json request
 app.use(express.urlencoded({extended:true}))
+app.use(cookieParser())
 
 app.use('/users',userRouter) //middle ware
 
