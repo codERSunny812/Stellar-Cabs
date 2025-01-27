@@ -47,7 +47,7 @@
         }
     ```
 
-    -**Validation Error(400):**
+    - **Validation Error(400):**
 
 ```javascript
 {
@@ -93,7 +93,7 @@
         }
     ```
 
-    -**Validation Error(400):**
+    - **Validation Error(400):**
 
 ```javascript
 {
