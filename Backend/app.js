@@ -12,7 +12,7 @@ connectToDb(); //function to connect with DB
 app.use(cors()); //use the cors
 app.use(express.json()); //used to parse the json request
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); //used so that we can use the cookie parser
+app.use(cookieParser()); //used so that we can interact with the front end cookies
 
 app.use("/users", userRouter); //middle ware
 

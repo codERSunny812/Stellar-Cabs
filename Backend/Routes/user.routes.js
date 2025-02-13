@@ -31,7 +31,7 @@ userRouter
 .get('/profile',authUser,getUserProfile)
 
 
-
+//route to logout a user 
 userRouter
 .get('/logout',authUser,logoutUser)
 
