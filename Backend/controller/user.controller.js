@@ -11,6 +11,7 @@ module.exports.routeInfo=(req,res)=>{
 // route to register a user 
 module.exports.registerUser = async (req, res) => {
     try {
+        // to display the result of the express valdiation result 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -77,6 +78,7 @@ module.exports.loginUser = async(req,res,next)=>{
      })
     }
 
+    // extracting the email and password from the request body 
     const {email,password} = req.body
     console.log("email",email)
     console.log("password",password)
@@ -96,6 +98,7 @@ module.exports.loginUser = async(req,res,next)=>{
     }
 
     console.log("password check started")
+
      //password check
     const isMatch = await user.comparePassword(password)
 
@@ -107,6 +110,7 @@ module.exports.loginUser = async(req,res,next)=>{
         })
     }
 
+    
     console.log("password matched")
 
     console.log("generate the token")
@@ -139,7 +143,7 @@ module.exports.getUserProfile = async(req,res,next)=>{
     })
 }
 
-
+// logout out route for the user 
 module.exports.logoutUser = async (req,res,next) =>{
     res.clearCookie("token");
     const token = req.cookies?.token || req.headers.authorization.split(' ')[1];

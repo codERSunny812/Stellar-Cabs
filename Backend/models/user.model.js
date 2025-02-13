@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const jwt_secret = process.env.JWT_SECRET
 
+// schema of the user 
 const userSchema = mongoose.Schema({
     fullName:{
         firstname:{

@@ -5,9 +5,11 @@ const blackListedTokenModel = require("../models/blackListedToken.model");
 module.exports.authUser = async (req, res, next) => {
     console.log("Inside the auth middleware");
 
+    // getting the token from the front end 
     const token = req.cookies?.token || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
     console.log("Auth token:", token);
 
+    // checking for the token 
     if (!token) {
         return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
@@ -37,3 +39,5 @@ module.exports.authUser = async (req, res, next) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
 };
+
+
