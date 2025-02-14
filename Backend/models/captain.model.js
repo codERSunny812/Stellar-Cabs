@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
 const captionSchema = mongoose.Schema({
   fullName: {
@@ -72,4 +74,21 @@ const captionSchema = mongoose.Schema({
   }
 });
 
+captionSchema.methods.generateAuth=  function(){
+  const token = jwt.sign({_id:this._id},jwt_secret , {expiresIn:'24h'})
+  return token;
+}
+
+captionSchema.methods.comparePassword = async function(password){
+return await bcrypt.compare(password,this.password)
+}
+
+//can be called directly by the usermodel
+captionSchema.statics.hashedPassword= async function(password){
+return await bcrypt.hash(password,10);
+}
+
+
 const captionModel = mongoose.model("captionModel", captionSchema);
+
+module.exports = captionModel //default export

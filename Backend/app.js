@@ -6,6 +6,7 @@ const app = express();
 const connectToDb = require("./DB/db"); //default import
 const userRouter = require("./Routes/user.routes");
 const cookieParser = require("cookie-parser");
+const captionRouter = require("./Routes/caption.route");
 connectToDb(); //function to connect with DB
 
 // middleware
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); //used so that we can interact with the front end cookies
 
 app.use("/users", userRouter); //middle ware
+app.use('/caption',captionRouter)
 
 app.get("/", (req, res) => {
   res.send("hello from the server");
