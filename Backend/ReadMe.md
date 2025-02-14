@@ -110,7 +110,7 @@
 ### 3. Profile Route
 
 - **Endpoint:** `GET /users/Profile`
-- **Description:** Get the data of the loggedIn  user.
+- **Description:** Get the data of the current  loggedIn  user.
 
 - **Response**
   - **Sucess(200)**:
@@ -132,7 +132,7 @@
 ### 4. Logout Route
 
 - **Endpoint:** `GET /users/logout`
-- **Description:** Logout a user.
+- **Description:** Logout a user and blacklist the token provider in the cookie and header.
 
 - **Response**
   - **Sucess(200)**:
