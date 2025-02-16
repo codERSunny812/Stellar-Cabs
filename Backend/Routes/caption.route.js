@@ -5,7 +5,6 @@ const { registerCaption, checkCaption } = require('../controller/caption.control
 
 
 
-
 captionRouter
 .get('/',checkCaption)
 .post('/register',[
