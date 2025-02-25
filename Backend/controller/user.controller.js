@@ -80,6 +80,7 @@ module.exports.loginUser = async(req,res,next)=>{
 
     // extracting the email and password from the request body 
     const {email,password} = req.body
+    
     console.log("email",email)
     console.log("password",password)
 
