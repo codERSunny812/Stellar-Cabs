@@ -1,4 +1,75 @@
-# Backend API Documentation
+---
+
+# **Backend Documentation (`server/README.md`)**
+
+### Stellar Cabs - Backend
+
+This is the **backend API** for **Stellar Cabs**, responsible user  and captain auth. The backend is built using **Node.js** and **Express.js**, with **MongoDB** as the database.
+
+## 🚀 Features
+
+- **User authentication using Auth0**
+- **RESTful API with JSON responses**
+- **MongoDB for persistent storage**
+- **CORS support for frontend integration**
+- **Secure environment variables**
+
+## 🛠️ Tech Stack
+
+- **Node.js** - Server runtime
+- **Express.js** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - ODM for MongoDB
+- **dotenv** - Environment variables management
+- **express-validator** - For input validation
+
+## 📂 Folder Structure
+
+```sh
+/Backend
+│── /routes # API routes 
+│── /controllers # Route logic 
+│── /models # Mongoose schemas 
+│── /middleware # Authentication and security 
+│──  /DB     # Database connection
+│── /service # For user and caption auth 
+│── app.js # route point
+│── server.js # Entry point 
+│── .env # Environment variables 
+│── README.md # Documentation 
+│── package.json # Dependencies
+```
+
+## 🔧 Installation & Setup
+
+### 1️⃣ Clone the Repository
+
+```sh
+git clone https://github.com/codERSunny812/Stellar-Cabs.git
+cd Stellar-Cabs/Backend
+```
+
+### 2️⃣ Install Dependencies
+
+```sh
+npm install
+```
+
+### 3️⃣ Set Up Environment Variables
+
+Create a .env file in the root directory and add:
+
+```ini
+PORT=your-backend-port
+MONGO_URI=your-mongodb-uri
+JWT-SECRET=your-jwt-secret
+```
+
+### 4️⃣ Start the Backend Server
+
+```sh
+npm start
+```
 
 ## Endpoints
 
