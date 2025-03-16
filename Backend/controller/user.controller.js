@@ -11,20 +11,30 @@ module.exports.routeInfo=(req,res)=>{
 // route to register a user 
 module.exports.registerUser = async (req, res) => {
     try {
-        // to display the result of the express valdiation result 
+        // to display the result of the express valdiation
         const errors = validationResult(req);
+
+        console.log("errors", errors);
+
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
         const { fullName:{firstname, lastname}, email, password } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Some field is missing required" });
+        }
+
         // logs the request body
         console.log("req.body", req.body);
 
+        // checking for the user in the DB
         const existingUser = await userModel.findOne({ email });
 
         //existing user check
         console.log("existingUser", existingUser);
+        
         if (existingUser) {
             return res.status(400).json({ message: "Email already exists" });
         }
@@ -44,20 +54,21 @@ module.exports.registerUser = async (req, res) => {
             password: hashedPassword,
         });
 
-        console.log("createdUser", createdUser);
+        console.log("createdUser: ", createdUser);
         console.log("user created successfully");
 
-        console.log("token generation started");
-        const token = createdUser.generateAuthToken();
+        // console.log("token generation started");
+        // const token = createdUser.generateAuthToken();
 
-        console.log("token", token);
+        // console.log("token", token);
 
 
+        // sending the response to the front after creating the user in the DB
         res.status(200).json({
             data: createdUser,
-            token,
             message: "The user is signed up successfully",
         });
+
     } catch (error) {
         console.error("Error in registerUser:", error.message);
         res.status(500).json({ message: "Internal server error" });
@@ -67,7 +78,7 @@ module.exports.registerUser = async (req, res) => {
 
 
 // login route for the user
-module.exports.loginUser = async(req,res,next)=>{
+module.exports.loginUser = async(req,res)=>{
     // check for the error through express-validator
     const errors = validationResult(req)
       
@@ -81,12 +92,12 @@ module.exports.loginUser = async(req,res,next)=>{
     // extracting the email and password from the request body 
     const {email,password} = req.body
     
-    console.log("email",email)
-    console.log("password",password)
+    console.log("email:",email)
+    console.log("password:",password)
 
     console.log("user login started")
 
-    console.log("check the email exist in the DB")
+    console.log("checking  that the email exist in the DB")
 
     // check the email exist in the DB
     const user = await userModel.findOne({email}).select('+password') // select the password field too from the DB during fetching
@@ -103,7 +114,7 @@ module.exports.loginUser = async(req,res,next)=>{
      //password check
     const isMatch = await user.comparePassword(password)
 
-    console.log("isMatch",isMatch)
+    console.log("password Matched or not:",isMatch)
 
     if(!isMatch){
         return res.status(400).json({
@@ -114,12 +125,14 @@ module.exports.loginUser = async(req,res,next)=>{
     
     console.log("password matched")
 
-    console.log("generate the token")
-    //  if password is matched then generate the token
+    console.log("generate the token:")
+
+    //if password is matched then generate the token
     const token = await user.generateAuthToken()
 
     console.log("token",token)
 
+    // storing the token in the cookies 
     res.cookie("token",token)
 
     console.log("send the response")
@@ -145,7 +158,7 @@ module.exports.getUserProfile = async(req,res,next)=>{
 }
 
 // logout out route for the user 
-module.exports.logoutUser = async (req,res,next) =>{
+module.exports.logoutUser = async (req,res) =>{
     res.clearCookie("token");
     const token = req.cookies?.token || req.headers.authorization.split(' ')[1];
 

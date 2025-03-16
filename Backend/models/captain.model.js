@@ -74,8 +74,10 @@ const captionSchema = mongoose.Schema({
   }
 });
 
+// methods for captain
+
 captionSchema.methods.generateAuth=  function(){
-  const token = jwt.sign({_id:this._id},jwt_secret , {expiresIn:'24h'})
+  const token = jwt.sign({_id:this._id}, jwt_secret, {expiresIn:'24h'});
   return token;
 }
 
