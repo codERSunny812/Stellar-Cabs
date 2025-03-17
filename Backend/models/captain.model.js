@@ -1,17 +1,18 @@
 const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const jwt_secret = process.env.JWT_SECRET
 
 const captionSchema = mongoose.Schema({
   fullName: {
     firstName: {
       type: String,
       required: true,
-      minLength: [5, "first name must be atleast 5 character long"],
+      minLength: [4, "first name must be atleast 4 character long"],
     },
     lastName: {
       type: String,
-      minLength: [6, "last name must be at least 6 character long"],
+      minLength: [4, "last name must be at least 4 character long"],
     },
   },
   email:{
@@ -19,7 +20,7 @@ const captionSchema = mongoose.Schema({
     required:true,
     unique:true,
     lowercase:true,
-    match:[/^\S+@\S+\.\s+$/,"enter a valid email"]
+    match: [/^\S+@\S+\.\S+$/, "Enter a valid email"]
   },
   password:{
     type:String,

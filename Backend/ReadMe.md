@@ -25,20 +25,22 @@ This is the **backend API** for **Stellar Cabs**, responsible user  and captain 
 
 ## 📂 Folder Structure
 
-```sh
-/Backend
-│── /routes # API routes 
-│── /controllers # Route logic 
-│── /models # Mongoose schemas 
-│── /middleware # Authentication and security 
-│──  /DB     # Database connection
-│── /service # For user and caption auth 
-│── app.js # route point
-│── server.js # Entry point 
-│── .env # Environment variables 
-│── README.md # Documentation 
-│── package.json # Dependencies
-```
+ ```sh
+ 
+    /Backend
+    │── /routes # API routes 
+    │── /controllers # Route logic 
+    │── /models # Mongoose schemas 
+    │── /middleware # Authentication and security 
+    │──  /DB     # Database connection
+    │── /service # For user and caption auth 
+    │── app.js # route point
+    │── server.js # Entry point 
+    │── .env # Environment variables 
+    │── README.md # Documentation 
+    │── package.json # Dependencies
+    
+  ```
 
 ## 🔧 Installation & Setup
 
@@ -91,10 +93,10 @@ npm start
 
 ```javascript
 {
-  "firstname": "John",
-  "lastname": "Doe",
-  "email": "john.doe@example.com",
-  "password": "password123"
+  "firstname":your-first-name,
+  "lastname": your-last-name,
+  "email": your-email,
+  "password": your-password
 }
 ```
 
@@ -105,15 +107,16 @@ npm start
 
      {
       "data":
-      {"fullName":
       {
-        "firstname":"test",
-        "lastname":"user7"
+        "fullName":{
+        "firstname":your-first-name,
+        "lastname":your-last-name
         }
         ,
-        "email":"testuser7@sunny.com","password":"$2b$10$CaFa7Gv5pmWXrPjHXhq1C.VWRJVKrcm.O6QWzXXykNZFOh6rTCqby","_id":"6797c890db16df035fc0056c",
+        "email":your-email,
+        "password":your-password,
         "__v":0
-        },"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Nzk3Yzg5MGRiMTZkZjAzNWZjMDA1NmMiLCJpYXQiOjE3MzgwMDA1MjksImV4cCI6MTczODA4NjkyOX0.lqWxmkDC0AVNqh52KwLix38S9W1d3LMJ0LYyTi41Vao",
+        },
         "message":"The user is signed up successfully"
         }
     ```
@@ -133,7 +136,7 @@ npm start
   }
 ```
 
-### 2. Login User
+### 3. Login User
 
 - **Endpoint:** `POST /users/login`
 - **Description:** Login an user.
@@ -141,8 +144,8 @@ npm start
 
 ```javascript
 {
-    "email": "testuser6@sunny.com",
-    "password": "testuser6"
+    "email":your-email,
+    "password":your-password
 }
 ```
 
@@ -153,13 +156,13 @@ npm start
 
      {
       "data":{
-        "fullName":
-        {"firstname":"test",
-        "lastname":"user6"
+        "fullName":{
+        "firstname":your-first-name,
+        "lastname":your-last-name
         }
-        ,"_id":"6797aeec68391fd353852a47","email":"testuser6@sunny.com","password":"$2b$10$iYXxE5YZ8nLjuqOKOk5ofuLnnhEvRInzDd7gFzWDsXYrH30oRyeNa",
+        ,"_id":your-unique-id,
         "__v":0
-        },"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Nzk3YWVlYzY4MzkxZmQzNTM4NTJhNDciLCJpYXQiOjE3MzgwMDA3NTgsImV4cCI6MTczODA4NzE1OH0.8sSdIRbVtljyr-ql4_c40l8CBtU8U9zqR_SwmkxiLXc",
+        },"token":your-auth-token,
         "message":"the user is login successfully"
         }
     ```
@@ -178,10 +181,10 @@ npm start
 }
 ```
 
-### 3. Profile Route
+### 4. Profile Route
 
 - **Endpoint:** `GET /users/Profile`
-- **Description:** Get the data of the current  loggedIn  user.
+- **Description:** Get the data of the current  loggedIn  user(Profile page).
 
 - **Response**
   - **Sucess(200)**:
@@ -190,17 +193,19 @@ npm start
 
      {
       "message":"this is the user profile","data":
-      {"fullName":
       {
-      "firstname":"test",
-      "lastname":"user6"
+      
+      "fullName":{
+      "firstname":your-first-name,
+      "lastname":your-last-name
       },
-      "_id":"6797aeec68391fd353852a47","email":"testuser6@sunny.com",
+      "_id":your-unique-id,
+      "email":your-email-id,
       "__v":0
       }}
     ```
 
-### 4. Logout Route
+### 5. Logout Route
 
 - **Endpoint:** `GET /users/logout`
 - **Description:** Logout a user and blacklist the token provider in the cookie and header.
@@ -212,5 +217,175 @@ npm start
 
      {
       "message":"user logged out successfully"
+      }
+    ```
+  
+### 6. Register Captioon
+
+- **Endpoint:** `POST /caption/register`
+- **Description:** Registers a new caption.
+- **Request Body:**
+
+```javascript
+{
+   "fullName": {
+    "firstName":your-first-name,
+   "lastName":your-last-name
+   },
+   "email":your-email-id,
+  "password":your-password,
+  "socketId":your-socket-id,
+  "vechile":{
+    "color":your-vechile-color,
+    "numberPlate":your-vechile-number-plate,
+    "capacity":your-vechile-capacity,
+    "model":your-vechile-model,
+    "vechileType":your-vechile-category
+}
+}
+```
+
+- **Response**
+  - **Sucess(200)**:
+
+    ```javascript
+
+     {
+        "caption": {
+        "fullName": {
+            "firstName":your-first-name,
+            "lastName":your-last-name
+        },
+        "email":your-email-id,
+        "password":your-password,
+        "status": "inactive",
+        "vechile": {
+           "color":your-vechile-color,
+           "numberPlate":your-vechile-number-plate,
+           "capacity":your-vechile-capacity,
+           "model":your-vechile-model,
+           "vechileType":your-vechile-category
+        },
+        "_id":your-unique-id,
+        "__v": 0
+    }
+
+}
+    ```
+
+- **Validation Error(400):**
+
+```javascript
+{
+  "errors":
+  [{
+    "type":"field",
+    "value":"testuser7sunny.com",
+    "msg":"Invalid email",
+    "path":"email",
+    "location":"body"
+    }]
+  }
+```
+
+### 7. Login Caption
+
+- **Endpoint:** `POST /caption/login`
+- **Description:** Login the caption.
+- **Request Body:**
+
+```javascript
+{
+    "email":your-email,
+    "password":your-password
+}
+```
+
+- **Response**
+  - **Sucess(200)**:
+
+    ```javascript
+
+     {
+        "token": your-jwt-token,
+        "caption": {
+          "fullName": {
+               "firstName":your-first-name,
+               "lastName":your-last-name
+        },
+        "vechile": {
+           "color":your-vechile-color,
+           "numberPlate":your-vechile-number-plate,
+           "capacity":your-vechile-capacity,
+           "model":your-vechile-model,
+           "vechileType":your-vechile-category
+        },
+        "_id": your-unique-id,
+        "email":your-email,
+        "password": your-password,
+        "status": "inactive",
+        "__v": 0
+    }
+
+}
+    ```
+
+- **Validation Error(400):**
+
+```javascript
+{
+  "errors":[{
+    "type":"field",
+    "value":"testuser6sunny.com",
+    "msg":"Invalid email",
+    "path":"email",
+    "location":"body"
+    }]
+}
+```
+
+### 8. Profile Route of Caption
+
+- **Endpoint:** `GET /caption/profile-caption`
+- **Description:** Get the data of the current  loggedIn  caption(Profile page).
+
+- **Response**
+  - **Sucess(200)**:
+
+```javascript
+
+   {
+    "caption": {
+      "fullName": {
+           "firstName":your-first-name,
+           "lastName":your-last-name
+    },
+    "vechile": {
+       "color":your-vechile-color,
+       "numberPlate":your-vechile-number-plate,
+       "capacity":your-vechile-capacity,
+       "model":your-vechile-model,
+       "vechileType":your-vechile-category
+    },
+    "_id":your-unique-id,
+    "email": your-email,
+    "password":your-password,
+    "status": "inactive",
+    "__v": 0
+}
+```
+
+### 9. Logout Route
+
+- **Endpoint:** `GET /caption/logout`
+- **Description:** Logout the caption and blacklist the token provider in the cookie and header.
+
+- **Response**
+  - **Sucess(200)**:
+
+    ```javascript
+
+     {
+      "message":"caption logged out successfully"
       }
     ```

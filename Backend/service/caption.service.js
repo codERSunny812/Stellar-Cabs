@@ -2,7 +2,7 @@ const captionModel = require("../models/captain.model")
 
 
 const createCaption = async({
-firstName,lastName,password,color,numberPlate,capacity,model,vechileType
+firstName,lastName,email,password,color,numberPlate,capacity,model,vechileType
 })=>{
     try {
        //early check
@@ -11,7 +11,7 @@ firstName,lastName,password,color,numberPlate,capacity,model,vechileType
        } 
 
        //create the user in  DB
-       const captionData = captionModel.create({
+       const captionData = await captionModel.create({
         fullName:{
             firstName,
             lastName
@@ -26,6 +26,8 @@ firstName,lastName,password,color,numberPlate,capacity,model,vechileType
             vechileType
         }
        })
+
+       captionData.save();
 
        return captionData;
     } catch (error) {

@@ -5,7 +5,7 @@ const blackListedTokenModel = require('../models/blackListedToken.model')
 
 //this is the basic  user route: 
 module.exports.routeInfo=(req,res)=>{
-    res.send("this is the user route")
+    res.send("this is the user register and login route")
 }
 
 // route to register a user 
@@ -149,7 +149,7 @@ module.exports.loginUser = async(req,res)=>{
 
 
 //only authenticated user will have to acess this page
-module.exports.getUserProfile = async(req,res,next)=>{
+module.exports.getUserProfile = async(req,res)=>{
 
     res.status(200).json({
         message:"this is the user profile",
