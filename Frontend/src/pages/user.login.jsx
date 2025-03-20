@@ -1,26 +1,49 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import imageUrl from '../assets/uber-black.png'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
+import axios from 'axios';
+import { UserContext } from '../context/User.context';
 
 const UserLogin = () => {
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
-    const [userData,setUserData] = useState({})
     const[showPassword,setShowPassword] = useState(false);
 
-    const handleLoginForm = (e) => {
+
+    const {setUserData} = useContext(UserContext);
+
+    const navigate = useNavigate();
+
+    // function to handle the login
+    const handleLoginForm = async(e) => {
         e.preventDefault();
-        console.log("user email is:",email);
-        console.log("user password is",password);
-        setUserData({
+
+        const userData = {
             email:email,
             password:password
-        })
-        setEmail("");
-        setPassword("")
+        }
+
+        // sending the login credential to the  backend 
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`,userData)
+
+        if(response.status === 200){
+            console.log("user logged in successfully")
+            console.log("data",response.data);
+
+            localStorage.setItem("token",response.data.token);
+            localStorage.setItem("user",JSON.stringify(response.data));
+            setUserData(response.data);
+
+            setEmail("");
+            setPassword("");
+            navigate('/home-page') 
+        }
+
+        
+        
     }
   return (
     <div className="">

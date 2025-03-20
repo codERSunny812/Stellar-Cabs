@@ -1,33 +1,59 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import imageUrl from '../assets/uber-black.png'
 import { Link } from 'react-router-dom';
 import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/User.context';
 
 const UserSignUp = () => {
-        const[firstName,setFirstName]= useState("");
-        const [lastName,setLastName] = useState("");
+        const[firstname,setFirstName]= useState("");
+        const [lastname,setLastName] = useState("");
         const [email,setEmail] = useState("");
         const [password,setPassword] = useState("");
-        const [userData,setUserData] = useState({})
         const[showPassword,setShowPassword] = useState(false);
+
+        const {userData, setUserData} = useContext(UserContext);
+
+        const navigate = useNavigate();
     
-        const handleLoginForm = (e) => {
+        // function to handle the sign up
+        const handleSignupForm = async(e) => {
             e.preventDefault();
             console.log("user email is:",email);
             console.log("user password is",password);
-            setUserData({
+            
+            const newUser = {
                 fullName:{
-                    firstName:firstName,
-                    lastName:lastName
+                    firstname:firstname,
+                    lastname:lastname
                 },
                 email:email,
                 password:password
-            })
+            }
+
+            // send the data to the backend
+            const resp = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`,newUser)
+
+            if(resp.status === 200){
+                console.log("user created successfully")
+                const data = resp.data;
+                console.log("data",data)
+
+                setUserData(data.data);
+
+            }
+
             setEmail("");
-            setPassword("")
+            setFirstName("");
+            setLastName("");
+            setPassword("");
+
+            navigate('/login')
         }
+
   return (
      <div className="">
             <div className="h-screen p-5 flex flex-col justify-between items-start">
@@ -41,7 +67,7 @@ const UserSignUp = () => {
                 </div>
 
                 <div className="w-full">
-                    <form action="" onSubmit={(e)=> handleLoginForm(e)}>
+                    <form action="" onSubmit={(e)=> handleSignupForm(e)}>
 
                       <h2
                           className='font-medium text-lg capitalize mb-2'
@@ -50,7 +76,7 @@ const UserSignUp = () => {
                           <input
                               type="text"
                               required
-                              value={firstName}
+                              value={firstname}
                               onChange={(e) => setFirstName(e.target.value)}
                               placeholder='first Name'
                               className='bg-[#eeee] w-1/2 px-4 py-2 rounded-lg mt-1 text-lg placeholder:text-lg mb-7'
@@ -58,7 +84,7 @@ const UserSignUp = () => {
                           <input
                               type="text"
                               required
-                              value={lastName}
+                              value={lastname}
                               onChange={(e) => setLastName(e.target.value)}
                               placeholder='last Name'
                               className='bg-[#eeee] w-1/2 px-4 py-2 rounded-lg mt-1 text-lg placeholder:text-lg mb-7'
@@ -110,7 +136,7 @@ const UserSignUp = () => {
                 </div>
     
                 <div className="text-xs text-center">
-                  <p>" This site is protected by reCAPTCHA and the <span className='font-semibold'>Google Privacy Policy</span>  and <span className='font-semibold'>Terms of Service apply</span> "</p>
+                  <p> This site is protected by reCAPTCHA and the <span className='font-semibold'>Google Privacy Policy</span>  and <span className='font-semibold'>Terms of Service apply</span> </p>
                 </div>
     
             </div>

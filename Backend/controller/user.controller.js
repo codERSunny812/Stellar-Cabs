@@ -10,6 +10,8 @@ module.exports.routeInfo=(req,res)=>{
 
 // route to register a user 
 module.exports.registerUser = async (req, res) => {
+
+    console.log("registerUser started",req.body);
     try {
         // to display the result of the express valdiation
         const errors = validationResult(req);

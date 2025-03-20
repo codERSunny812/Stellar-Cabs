@@ -67,7 +67,7 @@ const CaptionLogin = () => {
                       </div>
 
 
-                      <button className='bg-black text-white w-full  py-2 px-2 rounded text-lg font-semibold'>login</button>
+                      <button className='bg-black text-white w-full  py-2 px-2 rounded text-lg font-semibold'>login as caption</button>
 
                       <p className='text-center capitalize mt-4 font-semibold'>don't have an account ?
                           <Link className='text-blue-400 ml-1' to="/caption-signup">
