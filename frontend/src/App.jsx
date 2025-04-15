@@ -8,6 +8,7 @@ import CaptionLogin from './Pages/CaptionLogin'
 import Home from './components/Home'
 import { UserProtectedRoute } from './utils/UserProtected'
 import UserLogout from './Pages/UserLogOut'
+import ForgotPassword from './components/ForgotPassword'
 
 
 
@@ -32,6 +33,7 @@ function App() {
             <UserLogout />
           </UserProtectedRoute>
         } />
+        <Route path='/user/forgot-password' element={<ForgotPassword/>} />
     </Routes>
     <ToastContainer
         autoClose={4000}

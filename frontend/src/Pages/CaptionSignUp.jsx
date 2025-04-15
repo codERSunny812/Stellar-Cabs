@@ -1,10 +1,13 @@
 import React, { useContext, useState } from "react";
 import imageUrl from "../assets/uber-black.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 import { CaptionContext } from "../Context/CaptionContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { sleep } from "../utils/Sleep";
 
 const CaptionSignUp = () => {
   const [firstname, setFirstName] = useState("");
@@ -18,40 +21,76 @@ const CaptionSignUp = () => {
   const [vechileType, setVechileType] = useState("");
   const [vechileCapacity, setVechileCapacity] = useState("");
 
-  console.log("vechile type is", vechileType);
 
-  const { setCaptionData } = useContext(CaptionContext);
 
-  const handleSignupForm = (e) => {
+  const { captionData,setCaptionData } = useContext(CaptionContext);
+  console.log(captionData)
+
+  const navigate = useNavigate();
+
+  // function to handle the caption signup 
+  const handleSignupForm = async(e) => {
     e.preventDefault();
-    console.log("user email is:", email);
-    console.log("user password is", password);
+
+
+    if(!firstname || !lastname || !email || !password || !vechileColor || !vechileModel || !vechileNumber || !vechileType || !vechileCapacity){
+    toast.error("all field are required");
+    return;
+    }
+    
+
     const newCaptionData = {
       fullName: {
-        firstname: firstname,
-        lastname: lastname,
+        firstName: firstname,
+        lastName: lastname,
       },
       email: email,
       password: password,
       vechile: {
         color: vechileColor,
         model: vechileModel,
-        number: vechileNumber,
-        type: vechileType,
+        numberPlate: vechileNumber,
+        vechileType: vechileType,
         capacity: vechileCapacity,
       },
     };
 
     console.log("the caption data is:", newCaptionData);
-    setEmail("");
-    setPassword("");
-    setFirstName("");
-    setLastName("");
-    setVechileColor("");
-    setVechileModel("");
-    setVechileNumber("");
-    setVechileType("");
-    setVechileCapacity("");
+
+    toast.promise(
+      axios.post(`${import.meta.env.VITE_BASE_URL}/caption/register`,newCaptionData)
+      .then(async(res)=>{
+       await sleep(1500);
+       return res;
+      }),{
+        pending:"Registering caption ....",
+        success:{
+          render({data}){
+            setCaptionData(data?.data?.data);
+            setEmail("");
+            setPassword("");
+            setFirstName("");
+            setLastName("");
+            setVechileColor("");
+            setVechileModel("");
+            setVechileNumber("");
+            setVechileType("");
+            setVechileCapacity("");
+            navigate('/caption-login')
+            return "Caption registered successfully!";
+          }
+        },
+        error:{
+          render({data}){
+            const msg = data?.response?.data?.errors?.[0]?.msg || "Something went wrong!";
+            return msg;
+          }
+        }
+      }
+    )
+
+
+
   };
 
   return (

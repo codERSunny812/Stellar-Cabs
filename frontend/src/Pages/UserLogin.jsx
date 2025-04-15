@@ -14,7 +14,9 @@ const UserLogin = () => {
     const [showPassword, setShowPassword] = useState(false);
 
 
-    const { setUserData } = useContext(UserContext);
+    const { userData,setUserData } = useContext(UserContext);
+
+    console.log(userData);
 
     const navigate = useNavigate();
 
@@ -44,7 +46,6 @@ const UserLogin = () => {
                 localStorage.setItem("token", response.data.token);
                 localStorage.setItem("user", JSON.stringify(response.data));
                 setUserData(response.data);
-
                 setEmail("");
                 setPassword("");
                 navigate('/home-page')
@@ -64,7 +65,7 @@ const UserLogin = () => {
     }
     return (
         <div className="">
-            <div className="h-screen p-7 flex flex-col justify-between  ">
+            <div className="h-screen p-7 flex flex-col justify-between">
 
                 <div className="images flex gap-2.5">
                     <Link to='/'>
@@ -112,6 +113,11 @@ const UserLogin = () => {
                         <p className='text-center capitalize mt-4 font-semibold'>don't have an account ?
                             <Link className='text-blue-400 ml-1' to="/signup">
                                 create one
+                            </Link></p>
+
+                        <p className='text-center capitalize mt-4 font-semibold'>
+                            <Link className='text-blue-400 ml-1' to="/user/forgot-password">
+                                forgot password
                             </Link></p>
                     </form>
                 </div>
