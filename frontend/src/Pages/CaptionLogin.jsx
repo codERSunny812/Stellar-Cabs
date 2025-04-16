@@ -1,24 +1,57 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import imageUrl from '../assets/uber-black.png'
 import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { CaptionContext } from '../Context/CaptionContext';
 
 const CaptionLogin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [captionData, setCaptionData] = useState({})
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleLoginForm = (e) => {
+
+
+    const { captionData, setCaptionData } = useContext(CaptionContext)
+    const navigate = useNavigate();
+
+    console.log(captionData)
+
+    
+
+    const handleLoginForm = async(e) => {
         e.preventDefault();
-        console.log("user email is:", email);
-        console.log("user password is", password);
-        setCaptionData({
+
+        if (!email || !password) {
+           toast.error("all field are required");
+            return;
+        }
+        const loginPayload = {
             email: email,
             password: password
-        })
+        }
+        console.log("the login payload is:", loginPayload);
+        try {
+            const res = await  axios.post(`${import.meta.env.VITE_BASE_URL}/caption/login`, loginPayload)
+            console.log(res)
+            if (res.data.status === "success") {
+                toast.success("login successfull")
+                localStorage.setItem("caption", JSON.stringify(res.data.caption))
+                localStorage.setItem("token", res.data.token)
+                localStorage.setItem("role", res.data.role)
+                setCaptionData(res.data.caption)
+                navigate("/caption/home-page")
+            } else {
+                toast.error(res.data.message)
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error("something went wrong")
+            
+        }
         setEmail("");
         setPassword("")
     }

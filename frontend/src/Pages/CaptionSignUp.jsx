@@ -55,7 +55,6 @@ const CaptionSignUp = () => {
       },
     };
 
-    console.log("the caption data is:", newCaptionData);
 
     toast.promise(
       axios.post(`${import.meta.env.VITE_BASE_URL}/caption/register`,newCaptionData)

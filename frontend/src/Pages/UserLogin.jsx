@@ -5,7 +5,7 @@ import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 import axios from 'axios';
-import { UserContext } from '../context/UserContext';
+import { UserContext } from '../Context/UserContext';
 import { toast } from 'react-toastify';
 
 const UserLogin = () => {
@@ -20,49 +20,45 @@ const UserLogin = () => {
 
     const navigate = useNavigate();
 
-    // function to handle the login
     const handleLoginForm = async (e) => {
         e.preventDefault();
 
-        if(!email || !password){
-           return toast.error("some field are missing⛓️‍💥")
+        if (!email || !password) {
+            return toast.error("some fields are missing ⛓️‍💥");
         }
 
-        const userData = {
-            email: email,
-            password: password
-        }
-
-        
+        const userData = { email, password };
 
         try {
-            // sending the login credential to the  backend 
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+            await toast.promise(
+                axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+                    .then((resp) => {
+                        console.log("user logged in successfully");
+                        console.log("data", resp.data);
 
-            if (response.status === 200) {
-                console.log("user logged in successfully")
-                console.log("data", response.data);
-
-                localStorage.setItem("token", response.data.token);
-                localStorage.setItem("user", JSON.stringify(response.data));
-                setUserData(response.data);
-                setEmail("");
-                setPassword("");
-                navigate('/home-page')
-            }
+                        localStorage.setItem("token", resp.data.token);
+                        localStorage.setItem("user", JSON.stringify(resp.data));
+                        setUserData(resp.data);
+                        setEmail("");
+                        setPassword("");
+                        setTimeout(() => {
+                            navigate("/home-page");
+                        }, 1000);
+                    }),
+                {
+                    pending: "logging you in",
+                    success: "logged in successfully",
+                    error: "something went wrong",
+                }
+            );
         } catch (error) {
-            // console.log(error)
-            console.log(error.response.data.message);
-            const errorMessage = error?.response?.data?.message;
-
-            toast.error(errorMessage);
+            console.log(error?.response?.data?.message);
+            toast.error(error?.response?.data?.message || "Login failed");
         }
+    };
 
 
-
-
-
-    }
+ 
     return (
         <div className="">
             <div className="h-screen p-7 flex flex-col justify-between">
@@ -79,7 +75,7 @@ const UserLogin = () => {
                             className='font-medium text-xl capitalize mb-2'
                         >what's your mail?</h2>
                         <input
-                            type="text"
+                            type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder='email@example.com'
