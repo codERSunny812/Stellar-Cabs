@@ -74,11 +74,6 @@ catch (error) {
 }
 }
 
-
-
-
-
-
 module.exports.loginCaption = async(req,res,next)=>{
 try {
     const errors = validationResult(req);
@@ -114,6 +109,7 @@ try {
             message:"password is incorrect"
         })
     }
+    
 
     console.log("password matched successfully");
 
@@ -128,8 +124,12 @@ try {
     res.cookie('token',token);
 
     return res.status(200).json({
+        status:"success",
+        message:"caption login successfully",
         token,
-        caption
+        caption,
+        role:"caption",
+
     })
 
 } catch (error) {
