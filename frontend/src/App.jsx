@@ -9,6 +9,8 @@ import Home from './components/Home'
 import { UserProtectedRoute } from './utils/UserProtected'
 import UserLogout from './Pages/UserLogOut'
 import ForgotPassword from './components/ForgotPassword'
+import CaptionHomePage from './Pages/CaptionHomePage'
+import CaptionProctected from './utils/CaptionProctected'
 
 
 
@@ -33,6 +35,11 @@ function App() {
             <UserLogout />
           </UserProtectedRoute>
         } />
+        <Route path='/caption/home-page' element={
+          <CaptionProctected>
+            <CaptionHomePage/>
+          </CaptionProctected>
+          } />
         <Route path='/user/forgot-password' element={<ForgotPassword/>} />
     </Routes>
     <ToastContainer

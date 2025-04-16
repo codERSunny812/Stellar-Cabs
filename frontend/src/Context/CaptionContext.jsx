@@ -1,8 +1,6 @@
 import { createContext, useState } from "react";
 
 
-
-
 export const CaptionContext = createContext(null);
 
 
