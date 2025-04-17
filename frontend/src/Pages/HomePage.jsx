@@ -3,7 +3,9 @@ import { UserContext } from "../Context/UserContext";
 import logoImg from "../assets/uber-black.png";
 import {useGSAP} from '@gsap/react'
 import gsap from "gsap";
-import { FaChevronDown,FaChevronUp } from "react-icons/fa";
+import { FaChevronDown,FaChevronUp,FaUser } from "react-icons/fa";
+import LocationSearchPanel from "../components/LocationSearchPanel";
+import ShowCabs from "../components/ShowCabs";
 
 const HomePage = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
@@ -32,13 +34,15 @@ const HomePage = () => {
 
 
   return (
-    <div className="h-screen relative">
+    <div className="h-screen relative overflow-hidden">
+      {/* top logo of the uber  */}
       <img
         src={logoImg}
         alt="uber logo"
         className="w-16 absolute left-5 top-5"
       />
 
+      {/* background image of the uber */}
       <div className="h-screen w-screen">
         <img
           src="https://i2-prod.mylondon.news/article16106961.ece/ALTERNATES/s615/2_Uber-pink-cars.jpg"
@@ -47,7 +51,9 @@ const HomePage = () => {
         />
       </div>
 
+      {/* bottom panel of the page  */}
       <div className="absolute top-0 h-screen w-full flex flex-col justify-end">
+
         <div className="h-[25%] bg-white p-5 relative">
           <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
           <h5 className="absolute top-5 right-6">
@@ -85,9 +91,14 @@ const HomePage = () => {
 
         <div 
         ref={divRef}
-        className="h-0 bg-amber-800"></div>
+        className="h-0 bg-white">
+          <LocationSearchPanel/>
+        </div>
 
       </div>
+
+      <ShowCabs/>
+     
     </div>
   );
 };
