@@ -12,10 +12,14 @@ const HomePage = () => {
   const [dropLocation, setDropLocation] = useState("");
   const [openPanel , setOpenPanel] = useState(false);
   const divRef = useRef(null);
+  const[vechilePanel , setVechilePanel] = useState(false);
+  const vechilePanelRef = useRef(null); 
+
+  console.log(vechilePanelRef.current)
 
   const data = useContext(UserContext);
 
-  console.log("the global data is:", data);
+  // console.log("the global data is:", data);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -29,7 +33,26 @@ const HomePage = () => {
       duration: 0.5,
       ease: "power2.inOut",
     });
-  }, [openPanel]);
+  }, [openPanel])
+
+  useGSAP(()=>{
+     if(vechilePanel){
+       gsap.to(vechilePanelRef.current,{
+        transform: "translateY(0%)",
+        duration:1,
+        ease: "power2.inOut",
+       })
+     }else{
+        gsap.to(vechilePanelRef.current,{
+          transform: "translateY(100%)",
+          duration: 0.5,
+          ease: "power2.inOut",
+        })
+     }
+  },[vechilePanel])
+
+
+  
 
 
 
@@ -52,7 +75,7 @@ const HomePage = () => {
       </div>
 
       {/* bottom panel of the page  */}
-      <div className="absolute top-0 h-screen w-full flex flex-col justify-end">
+      <div  className="absolute top-0 h-screen w-full flex flex-col justify-end">
 
         <div className="h-[25%] bg-white p-5 relative">
           <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
@@ -92,12 +115,15 @@ const HomePage = () => {
         <div 
         ref={divRef}
         className="h-0 bg-white">
-          <LocationSearchPanel/>
+          <LocationSearchPanel 
+          setVechilePanel={setVechilePanel}
+          setOpenPanel={setOpenPanel}
+          />
         </div>
 
       </div>
 
-      <ShowCabs/>
+      <ShowCabs ref={vechilePanelRef} setVechilePanel={setVechilePanel}/>
      
     </div>
   );

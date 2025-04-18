@@ -1,11 +1,12 @@
-import React from 'react'
+import React,{forwardRef} from 'react'
 import { FaChevronDown, FaChevronUp, FaUser } from "react-icons/fa";
 
-const ShowCabs = () => {
+const ShowCabs = forwardRef((props,ref) => {
+    console.log(props)
   return (
-      <div className=" fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
+      <div ref={ref}  className=" fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
           <div className="flex  justify-center">
-              <div className="border-3 border-gray-400 w-1/6 rounded-full mb-4"></div>
+              <div className="border-3 border-gray-300 w-1/6 rounded-full mb-4" onClick={() => props.setVechilePanel(false)}></div>
           </div>
 
           <h3 className="text-2xl capitalize font-semibold text-center mb-4">
@@ -35,7 +36,7 @@ const ShowCabs = () => {
 
 
           <div className="vechile-2 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
-              <img src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,w_956,h_537/v1571927853/assets/39/c1c2c7-61eb-4432-9bac-728b974207e7/original/cityscoot-icon-mobile.png" className="h-20  w-20" alt="" />
+              <img src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,w_956,h_537/v1571927853/assets/39/c1c2c7-61eb-4432-9bac-728b974207e7/original/cityscoot-icon-mobile.png" className="h-20 w-20" alt="" />
 
               <div className="ride-info">
                   <div className="car-name flex gap-3">
@@ -74,6 +75,6 @@ const ShowCabs = () => {
 
       </div>
   )
-}
+});
 
 export default ShowCabs
