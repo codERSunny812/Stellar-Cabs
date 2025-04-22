@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { FaChevronDown,FaChevronUp,FaUser } from "react-icons/fa";
 import LocationSearchPanel from "../components/LocationSearchPanel";
 import ShowCabs from "../components/ShowCabs";
+import ConfirmedVechile from "../components/ConfirmedVechile";
 
 const HomePage = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
@@ -14,12 +15,10 @@ const HomePage = () => {
   const divRef = useRef(null);
   const[vechilePanel , setVechilePanel] = useState(false);
   const vechilePanelRef = useRef(null); 
+  const [confirmVechilePanel , setConfirmVechilePanel] = useState(false);
+  const confirmVechilePanelRef = useRef(null);
 
-  console.log(vechilePanelRef.current)
 
-  const data = useContext(UserContext);
-
-  // console.log("the global data is:", data);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -50,6 +49,24 @@ const HomePage = () => {
         })
      }
   },[vechilePanel])
+
+
+
+  useGSAP(() => {
+    if (confirmVechilePanel) {
+      gsap.to(confirmVechilePanelRef.current, {
+        transform: "translateY(0%)",
+        duration: 1,
+        ease: "power2.inOut",
+      })
+    } else {
+      gsap.to(confirmVechilePanelRef.current, {
+        transform: "translateY(100%)",
+        duration: 0.5,
+        ease: "power2.inOut",
+      })
+    }
+  }, [confirmVechilePanel])
 
 
   
@@ -123,7 +140,23 @@ const HomePage = () => {
 
       </div>
 
-      <ShowCabs ref={vechilePanelRef} setVechilePanel={setVechilePanel}/>
+      <ShowCabs ref={vechilePanelRef}
+       setVechilePanel={setVechilePanel}
+       setConfirmVechilePanel ={setConfirmVechilePanel}
+       />
+
+
+      {/* confirm vechile components */}
+
+      <div ref={confirmVechilePanelRef} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
+        <ConfirmedVechile setConfirmVechilePanel={setConfirmVechilePanel}/>
+
+
+      </div>
+
+
+
+
      
     </div>
   );

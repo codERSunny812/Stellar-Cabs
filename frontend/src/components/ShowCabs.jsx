@@ -14,7 +14,9 @@ const ShowCabs = forwardRef((props,ref) => {
           </h3>
 
 
-          <div className="vechile-1 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
+          <div 
+          onClick={() => props.setConfirmVechilePanel(true)}
+          className="vechile-1 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
               <img src="https://www.svgrepo.com/show/408291/car-white.svg" className="h-20  w-20" alt="" />
 
               <div className="ride-info">
@@ -35,7 +37,9 @@ const ShowCabs = forwardRef((props,ref) => {
 
 
 
-          <div className="vechile-2 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
+          <div 
+            onClick={() => props.setConfirmVechilePanel(true)}
+            className="vechile-2 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
               <img src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,w_956,h_537/v1571927853/assets/39/c1c2c7-61eb-4432-9bac-728b974207e7/original/cityscoot-icon-mobile.png" className="h-20 w-20" alt="" />
 
               <div className="ride-info">
@@ -54,7 +58,9 @@ const ShowCabs = forwardRef((props,ref) => {
               <h3 className="font-bold text-xl">₹198.22</h3>
           </div>
 
-          <div className="vechile-3 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
+          <div
+            onClick={() => props.setConfirmVechilePanel(true)} 
+            className="vechile-3 flex gap-4 items-center justify-between vechile-info active:border-2 active:border-blue-20 rounded-2xl px-3 py-5 mb-2">
               <img src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png" className="h-20  w-20" alt="" />
 
               <div className="ride-info">
