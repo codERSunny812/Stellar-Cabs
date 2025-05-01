@@ -25,7 +25,8 @@ const HomePage = () => {
   };
 
 
-  // gsap animation 
+  // gsap animations to show popups
+
   useGSAP(() => {
     gsap.to(divRef.current, {
       height: openPanel ? "75%" : "0%",
@@ -50,8 +51,6 @@ const HomePage = () => {
      }
   },[vechilePanel])
 
-
-
   useGSAP(() => {
     if (confirmVechilePanel) {
       gsap.to(confirmVechilePanelRef.current, {
@@ -67,10 +66,6 @@ const HomePage = () => {
       })
     }
   }, [confirmVechilePanel])
-
-
-  
-
 
 
   return (
@@ -94,6 +89,7 @@ const HomePage = () => {
       {/* bottom panel of the page  */}
       <div  className="absolute top-0 h-screen w-full flex flex-col justify-end">
 
+        {/* location search bar component start  */}
         <div className="h-[25%] bg-white p-5 relative">
           <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
           <h5 className="absolute top-5 right-6">
@@ -129,6 +125,8 @@ const HomePage = () => {
           </form>
         </div>
 
+
+        {/* location search bar panel open  */}
         <div 
         ref={divRef}
         className="h-0 bg-white">
@@ -140,21 +138,21 @@ const HomePage = () => {
 
       </div>
 
+
+      {/* show cabs panel */}
       <ShowCabs ref={vechilePanelRef}
        setVechilePanel={setVechilePanel}
        setConfirmVechilePanel ={setConfirmVechilePanel}
        />
 
 
-      {/* confirm vechile components */}
+      {/* confirm vechile panel */}
 
       <div ref={confirmVechilePanelRef} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
         <ConfirmedVechile setConfirmVechilePanel={setConfirmVechilePanel}/>
-
-
       </div>
 
-
+      {/* looking for driver panel  */}
 
 
      

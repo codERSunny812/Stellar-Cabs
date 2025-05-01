@@ -19,7 +19,7 @@ const ConfirmedVechile = (props) => {
         <div className="w-full flex flex-col justify-between items-center gap-2">
 
         <img 
-        className='h-52 w-52'
+        className=' h-52 w-52'
         src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_520,w_921/v1709190311/assets/f9/453c50-4b40-4527-ac78-5d0714be3866/original/UberTaxi_16.9%281%29.png" alt="ride car" />
 
         {/* ride info  */}
@@ -28,7 +28,7 @@ const ConfirmedVechile = (props) => {
 
           {/* destination address  */}
 
-          <div className="flex items-center gap-2 px-3 py-2 border-b-2 border-gray-500 mb-3">
+          <div className="flex items-center gap-4 px-3 py-2 border-b-4 border-gray-200 mb-3">
             <MdPinDrop className='h-8 w-8'/>
             <div className="text">
               <h1 className='text-xl font-bold capitalize'>562/11-A</h1>
@@ -37,7 +37,7 @@ const ConfirmedVechile = (props) => {
           </div>
 
             {/* pickup  address  */}
-          <div className="flex items-center gap-4 px-3 py-2 border-b-2 border-gray-500 mb-3">
+          <div className="flex items-center gap-4 px-3 py-2 border-b-4 border-gray-200 mb-3">
             <FaLocationDot className='h-7 w-7' />
               <div className="text">
               <h1 className='text-xl font-bold capitalize'>Third wave, coffe shop</h1>
@@ -48,9 +48,13 @@ const ConfirmedVechile = (props) => {
 
               {/* price  */}
 
-            <div className="flex items-center gap-4 px-3 py-3 border-b-2 border-gray-500 mb-3">
+            <div className="flex items-center gap-4 px-3 py-3 border-b-4 border-gray-200 mb-3">
                <GiTakeMyMoney className='h-8 w-8'/>
-                <span className='text-2xl font-bold'>₹198.22</span>
+            <div className="text">
+              <span className='text-2xl font-bold'>₹198.22</span>
+              <p className='text-base capitalize' >cash cash</p>
+            </div>
+                
               </div>
 
         
