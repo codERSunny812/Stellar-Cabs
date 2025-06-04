@@ -7,16 +7,22 @@ import { FaChevronDown,FaChevronUp,FaUser } from "react-icons/fa";
 import LocationSearchPanel from "../components/LocationSearchPanel";
 import ShowCabs from "../components/ShowCabs";
 import ConfirmedVechile from "../components/ConfirmedVechile";
+import WaitingForDriver from "../components/WaitingForDriver";
+import LookingForDriver from "../components/LookingForDriver";
 
 const HomePage = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
   const [openPanel , setOpenPanel] = useState(false);
-  const divRef = useRef(null);
   const[vechilePanel , setVechilePanel] = useState(false);
-  const vechilePanelRef = useRef(null); 
   const [confirmVechilePanel , setConfirmVechilePanel] = useState(false);
+  const [vechileFound , setVechileFound] = useState(false);
+
+
   const confirmVechilePanelRef = useRef(null);
+  const vechilePanelRef = useRef(null); 
+  const divRef = useRef(null);
+  const vechileFoundRef = useRef(null);
 
 
 
@@ -27,9 +33,10 @@ const HomePage = () => {
 
   // gsap animations to show popups
 
+  // animation to show the location panel a
   useGSAP(() => {
     gsap.to(divRef.current, {
-      height: openPanel ? "75%" : "0%",
+      height: openPanel ? " 75%" : "0%",
       duration: 0.5,
       ease: "power2.inOut",
     });
@@ -66,6 +73,22 @@ const HomePage = () => {
       })
     }
   }, [confirmVechilePanel])
+
+  useGSAP(() => {
+    if (vechileFound) {
+      gsap.to(vechileFoundRef.current, {
+        transform: "translateY(0%)",
+        duration: 1,
+        ease: "power2.inOut",
+      })
+    } else {
+      gsap.to(vechileFoundRef.current, {
+        transform: "translateY(100%)",
+        duration: 0.5,
+        ease: "power2.inOut",
+      })
+    }
+  }, [vechileFound])
 
 
   return (
@@ -139,20 +162,28 @@ const HomePage = () => {
       </div>
 
 
-      {/* show cabs panel */}
-      <ShowCabs ref={vechilePanelRef}
-       setVechilePanel={setVechilePanel}
-       setConfirmVechilePanel ={setConfirmVechilePanel}
-       />
+      {/* show cabs component which will open when user click on any location  */}
+      <ShowCabs 
+      ref={vechilePanelRef}
+      setVechilePanel={setVechilePanel}
+      setConfirmVechilePanel ={setConfirmVechilePanel}
+      />
 
 
-      {/* confirm vechile panel */}
-
-      <div ref={confirmVechilePanelRef} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
-        <ConfirmedVechile setConfirmVechilePanel={setConfirmVechilePanel}/>
+      {/* selected vechile component that is the confirm vechile component */}
+      <div 
+      ref={confirmVechilePanelRef} 
+      className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
+        <ConfirmedVechile 
+        setConfirmVechilePanel={setConfirmVechilePanel}
+        setVechileFound={setVechileFound}
+        />
       </div>
 
-      {/* looking for driver panel  */}
+      {/* looking for driver component */}
+      <div ref={vechileFoundRef} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
+       <LookingForDriver/>
+      </div>
 
 
      

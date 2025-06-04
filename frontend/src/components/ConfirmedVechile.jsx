@@ -4,6 +4,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import { GiTakeMyMoney } from "react-icons/gi";
 
 const ConfirmedVechile = (props) => {
+  console.log(props)
   return (
     <>
       <div className="flex  justify-center">
@@ -41,7 +42,7 @@ const ConfirmedVechile = (props) => {
             <FaLocationDot className='h-7 w-7' />
               <div className="text">
               <h1 className='text-xl font-bold capitalize'>Third wave, coffe shop</h1>
-              <p className='text-base capitalize' >cubbon road, bengaluru, karnatka</p>
+              <p className='text-sm capitalize' >cubbon road, bengaluru, karnatka</p>
               </div>
           </div>
 
@@ -51,8 +52,8 @@ const ConfirmedVechile = (props) => {
             <div className="flex items-center gap-4 px-3 py-3 border-b-4 border-gray-200 mb-3">
                <GiTakeMyMoney className='h-8 w-8'/>
             <div className="text">
-              <span className='text-2xl font-bold'>₹198.22</span>
-              <p className='text-base capitalize' >cash cash</p>
+              <span className='text-xl font-bold'>₹198.22</span>
+              <p className='text-sm capitalize' >cash cash</p>
             </div>
                 
               </div>
@@ -69,7 +70,13 @@ const ConfirmedVechile = (props) => {
          {/* confirm button  */}
 
          <div className="confirm-vechile w-full my-2">
-          <button className='bg-black text-white w-full py-4 rounded-lg capitalize text-lg'>confirm ride</button>
+          <button
+          onClick={() =>{
+             props.setVechileFound(true)
+             props.setConfirmVechilePanel(false)
+          }
+            } 
+          className='bg-black text-white w-full py-4 rounded-lg capitalize text-lg'>confirm ride</button>
          </div>
 
              
