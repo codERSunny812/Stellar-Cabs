@@ -13,7 +13,10 @@ const captionRouter = require("./Routes/caption.route");
 connectToDb();
 
 // middlewares
-app.use(cors()); //use the cors
+app.use(cors({
+  origin:"*",
+  credentials:true
+})); //use the cors
 app.use(express.json()); //used to parse the json request
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); //used so that we can interact with the front end cookies

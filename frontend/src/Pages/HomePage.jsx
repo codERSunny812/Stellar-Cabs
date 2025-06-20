@@ -17,12 +17,13 @@ const HomePage = () => {
   const[vechilePanel , setVechilePanel] = useState(false);
   const [confirmVechilePanel , setConfirmVechilePanel] = useState(false);
   const [vechileFound , setVechileFound] = useState(false);
-
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
 
   const confirmVechilePanelRef = useRef(null);
   const vechilePanelRef = useRef(null); 
   const divRef = useRef(null);
   const vechileFoundRef = useRef(null);
+  const waitingForDriverRef= useRef(null);
 
 
 
@@ -91,26 +92,40 @@ const HomePage = () => {
   }, [vechileFound])
 
 
+  useGSAP(() => {
+    if (waitingForDriver) {
+      gsap.to(waitingForDriverRef.current, {
+        transform: "translateY(0%)",
+        duration: 1,
+        ease: "power2.inOut",
+      })
+    } else {
+      gsap.to(waitingForDriverRef.current, {
+        transform: "translateY(100%)",
+        duration: 0.5,
+        ease: "power2.inOut",
+      })
+    }
+  }, [waitingForDriver])
+
   return (
     <div className="h-screen relative overflow-hidden">
-      {/* top logo of the uber  */}
-      <img
-        src={logoImg}
+
+    <img
+    src={logoImg}
         alt="uber logo"
         className="w-16 absolute left-5 top-5"
-      />
+    />
 
-      {/* background image of the uber */}
-      <div className="h-screen w-screen">
+    <div className="h-screen w-screen">
         <img
           src="https://i2-prod.mylondon.news/article16106961.ece/ALTERNATES/s615/2_Uber-pink-cars.jpg"
           alt=""
           className="h-full w-full object-cover"
         />
-      </div>
+    </div>
 
-      {/* bottom panel of the page  */}
-      <div  className="absolute top-0 h-screen w-full flex flex-col justify-end">
+    <div  className="absolute top-0 h-screen w-full flex flex-col justify-end">
 
         {/* location search bar component start  */}
         <div className="h-[25%] bg-white p-5 relative">
@@ -159,31 +174,30 @@ const HomePage = () => {
           />
         </div>
 
-      </div>
+    </div>
 
+    <ShowCabs 
+    ref={vechilePanelRef}
+    setVechilePanel={setVechilePanel}
+    setConfirmVechilePanel ={setConfirmVechilePanel}
+    />
 
-      {/* show cabs component which will open when user click on any location  */}
-      <ShowCabs 
-      ref={vechilePanelRef}
-      setVechilePanel={setVechilePanel}
-      setConfirmVechilePanel ={setConfirmVechilePanel}
-      />
+    <ConfirmedVechile 
+    ref={confirmVechilePanelRef}
+    setConfirmVechilePanel={setConfirmVechilePanel}
+    setVechileFound={setVechileFound}
+    />
+        
+    <LookingForDriver
+    ref={vechileFoundRef}
+    setVechileFound={setVechileFound}
+    setConfirmVechilePanel={setConfirmVechilePanel}
+        setWaitingForDriver={setWaitingForDriver}
+    />
 
-
-      {/* selected vechile component that is the confirm vechile component */}
-      <div 
-      ref={confirmVechilePanelRef} 
-      className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
-        <ConfirmedVechile 
-        setConfirmVechilePanel={setConfirmVechilePanel}
-        setVechileFound={setVechileFound}
-        />
-      </div>
-
-      {/* looking for driver component */}
-      <div ref={vechileFoundRef} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
-       <LookingForDriver/>
-      </div>
+      
+    <WaitingForDriver
+    ref={waitingForDriverRef} />
 
 
      
