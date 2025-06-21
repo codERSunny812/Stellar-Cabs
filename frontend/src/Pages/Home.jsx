@@ -1,7 +1,6 @@
-import React from 'react'
-import imageUrl from '../assets/uber.png'
+import imageUrl from '../assets/image/uber.png'
 import { Link } from 'react-router-dom'
-import bgPng from '../assets/BgImage.png'
+import bgPng from '../assets/image/BgImage.png'
 
 const Home = () => {
     return (

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import imageUrl from '../assets/uber-black.png'
+import imageUrl from '../assets/image/uber-black.png'
 import { Link, useNavigate } from 'react-router-dom';
 import { BiArrowBack } from "react-icons/bi";
 import { FaEye } from "react-icons/fa6";

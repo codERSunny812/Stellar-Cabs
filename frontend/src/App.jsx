@@ -11,6 +11,7 @@ import UserLogout from './Pages/UserLogOut'
 import ForgotPassword from './components/ForgotPassword'
 import CaptionHomePage from './Pages/CaptionHomePage'
 import CaptionProctected from './utils/CaptionProctected'
+import BookedRide from './components/BookedRide'
 
 
 
@@ -24,6 +25,7 @@ function App() {
         <Route path='/login' element={ <UserLogin/>   } />
         <Route path='/caption-signup' element={<CaptionSignUp />} />
         <Route path='/caption-login' element={<CaptionLogin/>} />
+        <Route path='booked-ride' element={<BookedRide/>} />
         <Route path='/home-page' element={
           <UserProtectedRoute>
             <Home />

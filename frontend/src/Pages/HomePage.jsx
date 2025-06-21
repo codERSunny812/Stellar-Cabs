@@ -1,6 +1,5 @@
-import React, { useContext, useRef, useState } from "react";
-import { UserContext } from "../Context/UserContext";
-import logoImg from "../assets/uber-black.png";
+import  {  useRef, useState } from "react";
+import logoImg from "../assets/image/uber-black.png";
 import {useGSAP} from '@gsap/react'
 import gsap from "gsap";
 import { FaChevronDown,FaChevronUp,FaUser } from "react-icons/fa";
@@ -128,7 +127,7 @@ const HomePage = () => {
     <div  className="absolute top-0 h-screen w-full flex flex-col justify-end">
 
         {/* location search bar component start  */}
-        <div className="h-[25%] bg-white p-5 relative">
+        <div className="h-1/3 bg-white p-5 relative">
           <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
           <h5 className="absolute top-5 right-6">
             {
@@ -192,15 +191,12 @@ const HomePage = () => {
     ref={vechileFoundRef}
     setVechileFound={setVechileFound}
     setConfirmVechilePanel={setConfirmVechilePanel}
-        setWaitingForDriver={setWaitingForDriver}
+    setWaitingForDriver={setWaitingForDriver}
     />
 
       
     <WaitingForDriver
     ref={waitingForDriverRef} />
-
-
-     
     </div>
   );
 };

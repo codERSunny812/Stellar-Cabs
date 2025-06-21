@@ -1,8 +1,10 @@
-import React from 'react'
+import CaptionHomePageLayout from '../components/layout/CaptionHomePage'
 
 const CaptionHomePage = () => {
   return (
-    <div>CaptionHomePage</div>
+    <>
+  <CaptionHomePageLayout/>
+    </>
   )
 }
 
