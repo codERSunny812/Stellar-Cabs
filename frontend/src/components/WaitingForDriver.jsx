@@ -23,9 +23,9 @@ const buttonData = [
 // this is the component that show the driver waiting part
 const WaitingForDriver = forwardRef((props,ref) => {
   return (
-    <div ref={ref} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-6">
+    <div ref={ref} className="fixed w-full  bottom-0 bg-white z-10 px-3 py-2">
       <div className="flex justify-between gap-4">
-        <h3 className="text-2xl capitalize font-semibold  py-2 px-2">
+        <h3 className="text-lg capitalize font-semibold  py-2 px-2">
           meet at the pickup point
         </h3>
 
@@ -34,12 +34,12 @@ const WaitingForDriver = forwardRef((props,ref) => {
         </h4>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-2">
         <div className="border-2 border-gray-300 w-full rounded-full mb-4"></div>
       </div>
 
       {/* driver info $ ride info  */}
-      <div className="w-full mt-8">
+      <div className="w-full mt-2">
         {/* driver info  */}
 
         <div className="w-full  flex justify-between">
@@ -62,8 +62,8 @@ const WaitingForDriver = forwardRef((props,ref) => {
             <h3 className="text-end font-semibold text-base text-gray-500">
               sunny
             </h3>
-            <h2 className="text-end font-semibold text-2xl">UP 32 BC 0001</h2>
-            <h4 className="text-end font-semibold text-sm text-gray-500">
+            <h2 className="text-end font-semibold text-xl">UP 32 BC 0001</h2>
+            <h4 className="text-end font-semibold text-base text-gray-500">
               White Suzuki S-Presso LXI
             </h4>
             <span className="flex items-center justify-end text-end font-semibold text-gray-500 text-base gap-1.5">
@@ -78,7 +78,7 @@ const WaitingForDriver = forwardRef((props,ref) => {
           <input
             type="text"
             placeholder="send a message..."
-            className="py-4 px-4 placeholder:font-semibold placeholder:capitalize outline-none border-none"
+            className="py-2 px-3 placeholder:font-semibold placeholder:capitalize outline-none border-none"
           />
           <IoSend className="h-5 w-5" />
         </div>
@@ -90,8 +90,8 @@ const WaitingForDriver = forwardRef((props,ref) => {
             const Icon = data.icons;
             return (
               <div className=" flex flex-col items-center gap-3" key={key}>
-                <Icon className="h-12 w-12 bg-gray-300 py-2 px-1 rounded-full" />
-                <h3 className="font-semibold capitalize">{data.text}</h3>
+                <Icon className="h-10 w-10 bg-gray-300 py-1 px-1 rounded-full" />
+                <h3 className="font-semibold capitalize text-sm">{data.text}</h3>
               </div>
             );
           })}
@@ -104,18 +104,18 @@ const WaitingForDriver = forwardRef((props,ref) => {
           <div className="flex items-center gap-4 px-3 py-1 border-b-4 border-gray-200 mb-3">
             <MdPinDrop className="h-8 w-8" />
             <div className="text">
-              <h1 className="text-xl font-bold capitalize">562/11-A</h1>
-              <p className="text-base capitalize ">
+              <h1 className="text-lg font-bold capitalize">562/11-A</h1>
+              <p className="text-sm capitalize ">
                 church street, bengaluru, karnatka
               </p>
             </div>
           </div>
 
           {/* pickup  address  */}
-          <div className="flex items-center gap-4 px-3 py-1 border-b-4 border-gray-200 mb-3">
+          <div className="flex items-center gap-4 px-3 py-1 border-b-4 border-gray-200 -mt-2 mb-2">
             <FaLocationDot className="h-7 w-7" />
             <div className="text">
-              <h1 className="text-xl font-bold capitalize">
+              <h1 className="text-lg font-bold capitalize">
                 Third wave, coffe shop
               </h1>
               <p className="text-sm capitalize">
@@ -126,10 +126,10 @@ const WaitingForDriver = forwardRef((props,ref) => {
 
           {/* price  */}
 
-          <div className="flex items-center gap-4 px-3 py-1 border-b-4 border-gray-200">
+          <div className="flex items-center gap-4 px-3  border-b-4 border-gray-200 -mt-2">
             <GiTakeMyMoney className="h-8 w-8" />
             <div className="text">
-              <span className="text-xl font-bold">₹198.22</span>
+              <span className="text-lg font-bold">₹198.22</span>
               <p className="text-sm capitalize">cash cash</p>
             </div>
           </div>

@@ -11,13 +11,13 @@ const DriverStatus = forwardRef((props,ref) => {
         if (driverStatus) {
             gsap.to(carIconRef.current, {
                 x:85,
-                duration: 1.8,
+                duration:1,
                 ease: "power4.Out",
             })
         } else {
             gsap.to(carIconRef.current, {
                 x: 0, 
-                duration: 1.8,
+                duration:1,
                 ease: "power4.Out",
             })
           }
@@ -40,7 +40,7 @@ const DriverStatus = forwardRef((props,ref) => {
          {
               driverStatus && <p className="capitalize px-2 font-medium text-white text-base">online</p>
          }
-        <PiCarProfileFill ref={carIconRef}   className="bg-gray-300 rounded-full p-1 h-10 w-10" onClick={carIconClick}/>
+        <PiCarProfileFill ref={carIconRef}   className="bg-black rounded-full p-1 h-10 w-10 text-white" onClick={carIconClick}/>
             {
               !driverStatus && <p className="capitalize px-2 font-medium text-black text-base">offline</p>
             }

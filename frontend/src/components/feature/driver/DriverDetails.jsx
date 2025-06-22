@@ -21,7 +21,7 @@ const userInsight = [
     {
         icon: FaAngellist,
         text: "total earning",
-        info: "$1000"
+        info: "₹1000"
     }
 ]
 
@@ -38,7 +38,7 @@ const DriverDetails = forwardRef((props,ref) => {
               </div>
 
               <div>
-                  <h4 className="text-xl font-semibold">$299</h4>
+                  <h4 className="text-xl font-semibold">₹299</h4>
                   <p className="text-sm font-medium text-gray-600 capitalize">earned</p>
               </div>
 

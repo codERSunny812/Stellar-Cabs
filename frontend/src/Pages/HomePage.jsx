@@ -116,7 +116,7 @@ const HomePage = () => {
         className="w-16 absolute left-5 top-5"
     />
 
-    <div className="h-screen w-screen">
+    <div className="h-screen w-screen border-2 border-amber-600">
         <img
           src="https://i2-prod.mylondon.news/article16106961.ece/ALTERNATES/s615/2_Uber-pink-cars.jpg"
           alt=""
@@ -196,7 +196,8 @@ const HomePage = () => {
 
       
     <WaitingForDriver
-    ref={waitingForDriverRef} />
+    ref={waitingForDriverRef} 
+    />
     </div>
   );
 };
