@@ -10,7 +10,7 @@ const DriverStatus = forwardRef((props,ref) => {
     useGSAP(()=>{
         if (driverStatus) {
             gsap.to(carIconRef.current, {
-                x:85,
+                x:100,
                 duration:1,
                 ease: "power4.Out",
             })
@@ -27,23 +27,22 @@ const DriverStatus = forwardRef((props,ref) => {
         if(driverStatus){
          setDriverStatus(false);
          props.setDriverRidePopUp(false);
-         props.setDriverRideDetail(true);
-            
+         props.setDriverRideDetail(true);w   
         }else{
-            setDriverStatus(true);
-            props.setDriverRideDetail(false);
-            props.setDriverRidePopUp(true);
+        setDriverStatus(true);
+        props.setDriverRideDetail(false);
+        props.setDriverRidePopUp(true);
         }
     }
   return (
       <div ref={ref} className={`w-1/2  rounded-full flex items-center gap-1.5  ${driverStatus ? "bg-green-500" : "bg-gray-100"} border-none outline-none`}>
          {
-              driverStatus && <p className="capitalize px-2 font-medium text-white text-base">online</p>
+        driverStatus && <p className="capitalize px-2 font-medium text-white text-base">online</p>
          }
         <PiCarProfileFill ref={carIconRef}   className="bg-black rounded-full p-1 h-10 w-10 text-white" onClick={carIconClick}/>
-            {
-              !driverStatus && <p className="capitalize px-2 font-medium text-black text-base">offline</p>
-            }
+        {
+        !driverStatus && <p className="capitalize px-2 font-medium text-black text-base">offline</p>
+        }
         
         
     </div>
