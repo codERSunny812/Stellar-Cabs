@@ -27,7 +27,7 @@ const DriverStatus = forwardRef((props,ref) => {
         if(driverStatus){
          setDriverStatus(false);
          props.setDriverRidePopUp(false);
-         props.setDriverRideDetail(true);w   
+         props.setDriverRideDetail(true);   
         }else{
         setDriverStatus(true);
         props.setDriverRideDetail(false);
