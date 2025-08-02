@@ -1,4 +1,4 @@
-const dotenv = require("dotenv");
+const dotenv = require("dotenv"); // to config the env variables 
 dotenv.config();
 const express = require("express");
 const cors = require("cors");
@@ -7,6 +7,7 @@ const connectToDb = require("./DB/db"); //default import
 const userRouter = require("./Routes/user.routes");
 const cookieParser = require("cookie-parser");
 const captionRouter = require("./Routes/caption.route");
+const MapRouter = require("./Routes/map.routes");
 
 
 //function to connect with DB
@@ -23,6 +24,7 @@ app.use(cookieParser()); //used so that we can interact with the front end cooki
 
 app.use("/users", userRouter);  //user middleware
 app.use('/caption',captionRouter)  //captain middleware
+app.use('/maps',MapRouter) // map middleware 
 
 //basic route to check the server
 app.get("/", (req, res) => {
