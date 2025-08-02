@@ -35,11 +35,11 @@ const DriverStatus = forwardRef((props,ref) => {
         }
     }
   return (
-      <div ref={ref} className={`w-1/2  rounded-full flex items-center gap-1.5  ${driverStatus ? "bg-green-500" : "bg-gray-100"} border-none outline-none`}>
+      <div ref={ref} className={`rounded-full flex items-center gap-1.5  ${driverStatus ? "bg-green-500" : "bg-gray-100"} border-none outline-none py-1`}>
          {
         driverStatus && <p className="capitalize px-2 font-medium text-white text-base">online</p>
          }
-        <PiCarProfileFill ref={carIconRef}   className="bg-black rounded-full p-1 h-10 w-10 text-white" onClick={carIconClick}/>
+        <PiCarProfileFill ref={carIconRef}   className="bg-black rounded-full p-1.5 h-9 w-9 text-white" onClick={carIconClick}/>
         {
         !driverStatus && <p className="capitalize px-2 font-medium text-black text-base">offline</p>
         }

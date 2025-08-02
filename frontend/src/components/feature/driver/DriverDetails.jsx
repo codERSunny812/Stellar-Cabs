@@ -27,7 +27,7 @@ const userInsight = [
 
 const DriverDetails = forwardRef((props,ref) => {
   return (
-      <div className="h-2/5 p-6 fixed bottom-0  w-full" ref={ref}>
+      <div className="h-2/5 p-6 fixed bottom-0  w-full  mb-8" ref={ref}>
           {/* caption information  */}
           <div className="captionInfo  flex items-center justify-between mt-2">
 

@@ -1,6 +1,6 @@
 const Button = ({ text, setDriverRidePopUp, setOpenDriverRidePanel }) => {
   return (
-      <div className={`${text === "accept" ? "bg-green-500" : "bg-gray-500"} px-10 py-3 rounded-lg text-white`}
+      <div className={`${text === "accept" ? "bg-green-500" : "bg-gray-500"} px-10 py-2 rounded-lg text-white`}
       onClick={()=>{ 
         if(text == "cancel"){
           setDriverRidePopUp(false);
