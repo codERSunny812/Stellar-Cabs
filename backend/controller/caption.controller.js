@@ -180,3 +180,30 @@ module.exports.logOutCaption = async(req,res)=>{
         })
     }
 }
+
+
+module.exports.updateCaptionStatus = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { status } = req.body;
+
+        const caption = await captionModel.findByIdAndUpdate(
+            req.caption._id,   // kiska status badalna hai (token se aaya)
+            { status },        // kya badalna hai
+            { new: true }      // updated document wapas do
+        );
+
+        return res.status(200).json({
+            message: "status updated successfully",
+            caption
+        });
+
+    } catch (error) {
+        console.log("error in updating status:", error);
+        return res.status(500).json({ message: "internal server error" });
+    }
+}
