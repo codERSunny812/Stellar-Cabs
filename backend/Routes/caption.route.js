@@ -1,7 +1,7 @@
 const express = require('express')
 const captionRouter = express.Router();
 const { body } = require('express-validator');
-const { registerCaption, checkCaption, loginCaption, getProfile, logOutCaption, checkCaptionRegister, checkCaptionLogin } = require('../controller/caption.controller');
+const { registerCaption, checkCaption, loginCaption, getProfile, logOutCaption, checkCaptionRegister, checkCaptionLogin, updateCaptionStatus } = require('../controller/caption.controller');
 const { authCaption } = require('../middleware/auth.middleware');
 
 
@@ -31,13 +31,21 @@ captionRouter
     body('password').isLength({ min: 5 }).withMessage('the password  should have alteast 5 character long'),
 ],loginCaption) // login caption
 
-
-
+//to get the profile of the caption
 captionRouter.get('/profile-caption',authCaption,getProfile)
 
 
-
+// to logout the caption 
 captionRouter.get('/logout-caption',authCaption,logOutCaption)
+
+
+//to update the status of the caption 
+captionRouter.patch(
+    '/status',
+    authCaption,
+    [body('status').isIn(['active', 'inactive']).withMessage('status must be active or inactive')],
+    updateCaptionStatus
+)
 
 
 
