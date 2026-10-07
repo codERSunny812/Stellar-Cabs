@@ -31,7 +31,7 @@ const HomePage = () => {
   };
 
 
-  // gsap animations to show popups
+  // gsap animations to show popups 
 
   // animation to show the location panel a
   useGSAP(() => {
@@ -73,6 +73,7 @@ const HomePage = () => {
       })
     }
   }, [confirmVechilePanel])
+  
 
   useGSAP(() => {
     if (vechileFound) {
