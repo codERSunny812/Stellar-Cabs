@@ -13,6 +13,7 @@ const MapRouter = require("./Routes/map.routes");
 //function to connect with DB
 connectToDb();
 
+
 // middlewares
 app.use(cors({
   origin:"*",
