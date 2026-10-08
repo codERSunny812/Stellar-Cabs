@@ -12,6 +12,7 @@ import ForgotPassword from './components/ForgotPassword'
 import CaptionHomePage from './Pages/CaptionHomePage'
 import CaptionProctected from './utils/CaptionProctected'
 import BookedRide from './components/BookedRide'
+import CaptionAccount from './Pages/CaptionAccount'
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react'
 
@@ -71,6 +72,14 @@ function App() {
             element={
               <CaptionProctected>
                 <CaptionHomePage />
+              </CaptionProctected>
+            }
+          />
+          <Route
+            path='/caption/account'
+            element={
+              <CaptionProctected>
+                <CaptionAccount />
               </CaptionProctected>
             }
           />

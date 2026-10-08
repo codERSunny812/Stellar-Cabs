@@ -3,26 +3,25 @@ import { BsFillCarFrontFill } from "react-icons/bs";
 import { FaAngellist } from "react-icons/fa";
 import { forwardRef } from "react";
 
-// abhi ye numbers nakli hain, Piece 1b mein stats API se aayenge
-const userInsight = [
-    {
-        icon: HiStatusOnline,
-        text: "total online",
-        info: "14h",
-    },
-    {
-        icon: BsFillCarFrontFill,
-        text: "total ride",
-        info: "40km",
-    },
-    {
-        icon: FaAngellist,
-        text: "total earning",
-        info: "₹1000",
-    },
-];
+const DriverDetails = forwardRef(({ captain, stats }, ref) => {
+    const userInsight = [
+        {
+            icon: BsFillCarFrontFill,
+            text: "total trips",
+            info: stats ? stats.totalTrips : "-",
+        },
+        {
+            icon: HiStatusOnline,
+            text: "distance",
+            info: stats ? `${(stats.totalDistance / 1000).toFixed(1)} km` : "-",
+        },
+        {
+            icon: FaAngellist,
+            text: "earning",
+            info: stats ? `₹${stats.totalEarning}` : "-",
+        },
+    ];
 
-const DriverDetails = forwardRef(({ captain }, ref) => {
     return (
         <div className="h-2/5 p-6 fixed bottom-0 w-full mb-8" ref={ref}>
             {/* caption information */}
@@ -41,7 +40,7 @@ const DriverDetails = forwardRef(({ captain }, ref) => {
                 </div>
 
                 <div>
-                    <h4 className="text-xl font-semibold">₹299</h4>
+                    <h4 className="text-xl font-semibold">₹{stats ? stats.totalEarning : 0}</h4>
                     <p className="text-sm font-medium text-gray-600 capitalize">earned</p>
                 </div>
             </div>

@@ -16,7 +16,7 @@ const CaptionHomePageLayout = () => {
   const [driverRidePopUp, setDriverRidePopUp] = useState(false); // show rides when driver became active
   const [openDriverRidePanel, setOpenDriverRidePanel] = useState(false);
   const [captain, setCaptain] = useState(null); // logged-in captain ka data
-
+  const [stats, setStats] = useState(null);
   const driverRideDetailRef = useRef(null);
   const driverRidePopUpRef = useRef(null);
   const driverDetailRef = useRef(null);
@@ -35,6 +35,26 @@ const CaptionHomePageLayout = () => {
         console.log("profile fetch error:", error);
       }
     };
+
+
+
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const resp = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/caption/stats`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setStats(resp.data);
+      } catch (error) {
+        console.log("stats fetch error:", error);
+      }
+    };
+
+    fetchStats();
+
+
+
 
     fetchProfile();
   }, []);
@@ -97,8 +117,9 @@ const CaptionHomePageLayout = () => {
           />
         </div>
 
+        {/* account page ka link */}
         <div className="w-1/5 flex items-center justify-center">
-          <Link to="/caption/home-page">
+          <Link to="/caption/account">
             <FaHome className="h-10 w-10 rounded-full bg-white p-2" />
           </Link>
         </div>
@@ -114,7 +135,11 @@ const CaptionHomePageLayout = () => {
       {/* end container for driver detail */}
       <div ref={driverDetailRef} className="absolute bottom-0 w-full bg-white">
         {/* driver over all detail */}
-        <DriverDetails ref={driverRideDetailRef} captain={captain} />
+        <DriverDetails 
+        ref={driverRideDetailRef} 
+        captain={captain}
+        stats={stats}
+        />
 
         {/* when driver is active */}
         <DriverRidePopUp
