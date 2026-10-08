@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, query } = require('express-validator');
-const { authUser } = require('../middleware/auth.middleware');
-const { getFare, createRide } = require('../controller/ride.controller');
+const { authUser, authCaption } = require('../middleware/auth.middleware');
+const { getFare, createRide, confirmRide } = require('../controller/ride.controller');
 
 const rideRouter = express.Router();
 
@@ -24,6 +24,14 @@ rideRouter.post(
         body('vehicleType').isIn(['car', 'auto', 'bike']).withMessage('invalid vehicle type'),
     ],
     createRide
+);
+
+
+rideRouter.post(
+    '/confirm',
+    authCaption,
+    [body('rideId').isMongoId().withMessage('invalid ride id')],
+    confirmRide
 );
 
 module.exports = rideRouter;

@@ -64,3 +64,37 @@ module.exports.createRide = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
+module.exports.confirmRide = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const ride = await rideService.confirmRide({
+            rideId: req.body.rideId,
+            captainId: req.caption._id,
+        });
+
+        const rideData = ride.toObject();
+
+        // user ko batao ki driver mil gaya
+        const userSocketId = rideData.user?.socketId;
+        delete rideData.user.socketId;
+
+        if (userSocketId) {
+            sendMessageToSocketId(userSocketId, 'ride-confirmed', rideData);
+        }
+
+        return res.status(200).json({ ride: rideData });
+    } catch (error) {
+        console.log('error in confirming ride:', error.message);
+
+        if (error.message === 'ride not available') {
+            return res.status(409).json({ message: 'ride already taken or cancelled' });
+        }
+        return res.status(500).json({ message: error.message });
+    }
+};

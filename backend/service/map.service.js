@@ -1,30 +1,35 @@
-const axios = require('axios')
+const axios = require('axios');
 
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving';
 
-module.exports.getLocationAddressCoordinate =async(adress)=>{
-    console.log(adress)
+// Nominatim ka niyam: har request mein app ka naam aur contact batana zaroori hai
+const HEADERS = {
+    'User-Agent': 'StellarCabs/1.0 (learning project; sengersunny448@gmail.com)',
+};
 
-    const API_KEY = process.env.GOOGLE_MAP_API_KEY;
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(adress)}&key=${API_KEY}`
-    try {
-        const resp = await axios.get(url);
-        console.log(resp);
-        if(resp.data.status == 'OK'){
-            const location = resp.data.results[0].geometry.location;
-            return{
-                ltd:location.lat,
-                lng:location.lng
-            }
-        }else{
-            throw new Error('unable to fetch new coordinates!!!')
-        }
-        
-    } catch (error) {
-        console.log(error)
-        throw error;
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// address -> latitude, longitude
+module.exports.getLocationAddressCoordinate = async (address) => {
+    if (!address) {
+        throw new Error('address is required');
     }
-}
 
+    const resp = await axios.get(NOMINATIM_URL, {
+        params: { q: address, format: 'json', limit: 1, countrycodes: 'in' },
+        headers: HEADERS,
+    });
+
+    if (!resp.data.length) {
+        throw new Error(`location not found: ${address}`);
+    }
+
+    return {
+        ltd: parseFloat(resp.data[0].lat),
+        lng: parseFloat(resp.data[0].lon),
+    };
+};
 
 // do jagahon ke beech doori (meters) aur samay (seconds)
 module.exports.getDistanceTime = async (origin, destination) => {
@@ -32,22 +37,26 @@ module.exports.getDistanceTime = async (origin, destination) => {
         throw new Error('origin and destination are required');
     }
 
-    const API_KEY = process.env.GOOGLE_MAP_API_KEY;
-    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${API_KEY}`;
+    const from = await module.exports.getLocationAddressCoordinate(origin);
+    await wait(1000); // Nominatim ek second mein ek hi request allow karta hai
+    const to = await module.exports.getLocationAddressCoordinate(destination);
 
-    const resp = await axios.get(url);
+    // OSRM mein pehle longitude aata hai, phir latitude
+    const url = `${OSRM_URL}/${from.lng},${from.ltd};${to.lng},${to.ltd}`;
 
-    if (resp.data.status !== 'OK') {
-        throw new Error(`distance matrix error: ${resp.data.status}`);
+    const resp = await axios.get(url, {
+        params: { overview: 'false' },
+        headers: HEADERS,
+    });
+
+    if (resp.data.code !== 'Ok' || !resp.data.routes.length) {
+        throw new Error('no route found between these locations');
     }
 
-    const element = resp.data.rows[0].elements[0];
-    if (element.status !== 'OK') {
-        throw new Error(`no route found: ${element.status}`);
-    }
+    const route = resp.data.routes[0];
 
     return {
-        distance: element.distance.value, // meters
-        duration: element.duration.value, // seconds
+        distance: Math.round(route.distance), // meters
+        duration: Math.round(route.duration), // seconds
     };
 };

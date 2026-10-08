@@ -51,8 +51,8 @@ const DriverStatus = forwardRef((props, ref) => {
             // database mein save hone ke baad hi screen badlo
             if (nextStatus === "active") {
                 setDriverStatus(true);
-                props.setDriverRideDetail(false);
-                props.setDriverRidePopUp(true);
+                // props.setDriverRideDetail(false);
+                // props.setDriverRidePopUp(true);
             } else {
                 setDriverStatus(false);
                 props.setDriverRidePopUp(false);

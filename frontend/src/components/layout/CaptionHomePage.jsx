@@ -4,34 +4,40 @@ import imageUrl from "./../../assets/image/uber-black.png";
 import DriverStatus from "../feature/driver/DriverStatus";
 import DriverDetails from "../feature/driver/DriverDetails";
 import DriverRidePopUp from "../feature/driver/DriverRidePopUp";
-import { useEffect, useRef, useState, useContext} from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import DriverRideDetail from "../feature/driver/DriverRideDetail";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { SocketContext } from "../../Context/SocketContext";
 
 const CaptionHomePageLayout = () => {
   // state variables
   const [driverRideDetail, setDriverRideDetail] = useState(true);
-  const [driverRidePopUp, setDriverRidePopUp] = useState(false); // show rides when driver became active
+  const [driverRidePopUp, setDriverRidePopUp] = useState(false);
   const [openDriverRidePanel, setOpenDriverRidePanel] = useState(false);
-  const [captain, setCaptain] = useState(null); // logged-in captain ka data
+  const [captain, setCaptain] = useState(null);
   const [stats, setStats] = useState(null);
+  const [newRide, setNewRide] = useState(null); // popup wali ride
+  const [acceptedRide, setAcceptedRide] = useState(null); // accept ki hui ride
+
   const { socket } = useContext(SocketContext);
+
   const driverRideDetailRef = useRef(null);
   const driverRidePopUpRef = useRef(null);
   const driverDetailRef = useRef(null);
 
-
-  // page khulte hi captain ki profile lao
+  // page khulte hi profile aur stats lao
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
+
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
         const resp = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/caption/profile-caption`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers }
         );
         setCaptain(resp.data.caption);
       } catch (error) {
@@ -39,14 +45,11 @@ const CaptionHomePageLayout = () => {
       }
     };
 
-
-
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
         const resp = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/caption/stats`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          { headers }
         );
         setStats(resp.data);
       } catch (error) {
@@ -54,12 +57,8 @@ const CaptionHomePageLayout = () => {
       }
     };
 
-    fetchStats();
-
-
-
-
     fetchProfile();
+    fetchStats();
   }, []);
 
   // captain ka data aate hi server ko batao ki yeh socket kiska hai
@@ -69,46 +68,62 @@ const CaptionHomePageLayout = () => {
     }
   }, [captain]);
 
-
+  // nayi ride aane par popup kholo
   useEffect(() => {
-    socket.on("new-ride", (data) => {
-      console.log("NEW RIDE:", data);
-    });
+    const handleNewRide = (ride) => {
+      setNewRide(ride);
+      setDriverRideDetail(false);
+      setDriverRidePopUp(true);
+    };
 
-    return () => socket.off("new-ride");
+    socket.on("new-ride", handleNewRide);
+    return () => socket.off("new-ride", handleNewRide);
   }, []);
+
+  const handleIgnore = () => {
+    setNewRide(null);
+    setDriverRidePopUp(false);
+    setDriverRideDetail(true);
+  };
+
+  const handleAccept = async () => {
+    if (!newRide) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const resp = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
+        { rideId: newRide._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setAcceptedRide(resp.data.ride);
+      setNewRide(null);
+      setDriverRidePopUp(false);
+      setOpenDriverRidePanel(true);
+      toast.success("ride accepted");
+    } catch (error) {
+      console.log("accept ride error:", error);
+      toast.error(error.response?.data?.message || "could not accept ride");
+      handleIgnore();
+    }
+  };
 
   // animation for driver ride details container
   useGSAP(() => {
-    if (driverRideDetail) {
-      gsap.to(driverRideDetailRef.current, {
-        transform: "translateY(0%)",
-        duration: 1,
-        ease: "power2.inOut",
-      });
-    } else {
-      gsap.to(driverRideDetailRef.current, {
-        transform: "translateY(100%)",
-        duration: 1,
-        ease: "power2.inOut",
-      });
-    }
+    gsap.to(driverRideDetailRef.current, {
+      transform: driverRideDetail ? "translateY(0%)" : "translateY(100%)",
+      duration: 1,
+      ease: "power2.inOut",
+    });
   }, [driverRideDetail]);
 
   useGSAP(() => {
-    if (driverRidePopUp) {
-      gsap.to(driverRidePopUpRef.current, {
-        transform: "translateY(0%)",
-        duration: 1,
-        ease: "power2.inOut",
-      });
-    } else {
-      gsap.to(driverRidePopUpRef.current, {
-        transform: "translateY(100%)",
-        duration: 1,
-        ease: "power2.inOut",
-      });
-    }
+    gsap.to(driverRidePopUpRef.current, {
+      transform: driverRidePopUp ? "translateY(0%)" : "translateY(100%)",
+      duration: 1,
+      ease: "power2.inOut",
+    });
   }, [driverRidePopUp]);
 
   useGSAP(() => {
@@ -154,21 +169,19 @@ const CaptionHomePageLayout = () => {
       {/* end container for driver detail */}
       <div ref={driverDetailRef} className="absolute bottom-0 w-full bg-white">
         {/* driver over all detail */}
-        <DriverDetails 
-        ref={driverRideDetailRef} 
-        captain={captain}
-        stats={stats}
-        />
+        <DriverDetails ref={driverRideDetailRef} captain={captain} stats={stats} />
 
-        {/* when driver is active */}
+        {/* nayi ride ka popup */}
         <DriverRidePopUp
           ref={driverRidePopUpRef}
-          setDriverRideDetail={setDriverRideDetail}
-          setDriverRidePopUp={setDriverRidePopUp}
-          setOpenDriverRidePanel={setOpenDriverRidePanel}
+          ride={newRide}
+          onIgnore={handleIgnore}
+          onAccept={handleAccept}
         />
 
-        {openDriverRidePanel && <DriverRideDetail />}
+        {openDriverRidePanel && acceptedRide && (
+          <DriverRideDetail ride={acceptedRide} />
+        )}
       </div>
     </div>
   );

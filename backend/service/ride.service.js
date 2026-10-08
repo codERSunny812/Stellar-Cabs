@@ -44,4 +44,24 @@ const createRide = async ({ userId, pickup, destination, vehicleType }) => {
     });
 };
 
-module.exports = { getFare, createRide };
+const confirmRide = async ({ rideId, captainId }) => {
+    // sirf "pending" ride hi accept ho sakti hai
+    const ride = await rideModel
+        .findOneAndUpdate(
+            { _id: rideId, status: 'pending' },
+            { status: 'accepted', captain: captainId },
+            { new: true }
+        )
+        .populate('user', 'fullName email socketId')
+        .populate('captain', 'fullName vechile');
+
+    if (!ride) {
+        throw new Error('ride not available');
+    }
+
+    return ride;
+};
+
+
+
+module.exports = { getFare, createRide, confirmRide };
