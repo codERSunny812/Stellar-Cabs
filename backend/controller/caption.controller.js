@@ -2,7 +2,7 @@ const {validationResult} = require('express-validator');
 const captionModel = require('../models/captain.model');
 const createCaption = require('../service/caption.service');
 const blackListedTokenModel = require('../models/blackListedToken.model');
-
+const rideModel = require('../models/ride.model');
 
 module.exports.checkCaptionRegister = async(req,res)=>{
 res.send("caption register route is working perfectly")
@@ -168,6 +168,7 @@ module.exports.logOutCaption = async(req,res)=>{
             console.log("token:",token)
         
             await blackListedTokenModel.create({ token });
+        await captionModel.findByIdAndUpdate(req.caption._id, { status: "inactive" });
 
 
         
@@ -207,3 +208,34 @@ module.exports.updateCaptionStatus = async (req, res) => {
         return res.status(500).json({ message: "internal server error" });
     }
 }
+
+
+module.exports.getCaptionStats = async (req, res) => {
+    try {
+        const result = await rideModel.aggregate([
+            // sirf is captain ki completed rides
+            { $match: { captain: req.caption._id, status: 'completed' } },
+            // sabko jodkar ek result banao
+            {
+                $group: {
+                    _id: null,
+                    totalTrips: { $sum: 1 },
+                    totalEarning: { $sum: '$fare' },
+                    totalDistance: { $sum: '$distance' },
+                },
+            },
+        ]);
+
+        // koi ride nahi hai to result khaali array hoga
+        const stats = result[0] || { totalTrips: 0, totalEarning: 0, totalDistance: 0 };
+
+        return res.status(200).json({
+            totalTrips: stats.totalTrips,
+            totalEarning: stats.totalEarning,
+            totalDistance: stats.totalDistance,
+        });
+    } catch (error) {
+        console.log("error in getting stats:", error);
+        return res.status(500).json({ message: "internal server error" });
+    }
+};

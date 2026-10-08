@@ -1,7 +1,7 @@
 const express = require('express')
 const captionRouter = express.Router();
 const { body } = require('express-validator');
-const { registerCaption, checkCaption, loginCaption, getProfile, logOutCaption, checkCaptionRegister, checkCaptionLogin, updateCaptionStatus } = require('../controller/caption.controller');
+const { registerCaption, checkCaption, loginCaption, getProfile, logOutCaption, checkCaptionRegister, checkCaptionLogin, updateCaptionStatus, getCaptionStats } = require('../controller/caption.controller');
 const { authCaption } = require('../middleware/auth.middleware');
 
 
@@ -47,6 +47,9 @@ captionRouter.patch(
     updateCaptionStatus
 )
 
+
+
+captionRouter.get('/stats', authCaption, getCaptionStats)
 
 
 module.exports=captionRouter
