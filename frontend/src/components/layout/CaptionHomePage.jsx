@@ -11,6 +11,7 @@ import DriverRideDetail from "../feature/driver/DriverRideDetail";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SocketContext } from "../../Context/SocketContext";
+import LiveMap from "../common/LiveMap";
 
 const CaptionHomePageLayout = () => {
   // state variables
@@ -137,7 +138,7 @@ const CaptionHomePageLayout = () => {
   return (
     <div className="h-screen relative">
       {/* driver navbar */}
-      <div className="fixed top-0 p-3 mx-3 flex gap-2.5 items-center justify-between w-full">
+      <div className="fixed top-0 z-10 p-3 mx-3 flex gap-2.5 items-center justify-between w-full">
         <div className="w-1/5 flex items-center justify-center ">
           <img src={imageUrl} alt="app logo" className="h-10 w-16" />
         </div>
@@ -159,15 +160,14 @@ const CaptionHomePageLayout = () => {
         </div>
       </div>
 
-      {/* middle image */}
-      <img
-        src="https://i2-prod.mylondon.news/article16106961.ece/ALTERNATES/s615/2_Uber-pink-cars.jpg"
-        alt=""
-        className="h-full w-full object-cover"
-      />
+     
+      {/* live map */}
+      <div className="h-1/2 w-full relative z-0">
+        <LiveMap />
+      </div>
 
       {/* end container for driver detail */}
-      <div ref={driverDetailRef} className="absolute bottom-0 w-full bg-white">
+      <div ref={driverDetailRef} className="absolute z-10 bottom-0 w-full bg-white">
         {/* driver over all detail */}
         <DriverDetails ref={driverRideDetailRef} captain={captain} stats={stats} />
 
