@@ -24,7 +24,6 @@ const captionSchema = mongoose.Schema({
   },
   password:{
     type:String,
-    unique:true,
     required:true,
     select:false
   },
@@ -76,6 +75,13 @@ const captionSchema = mongoose.Schema({
 });
 
 // methods for captain
+
+captionSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    return ret;
+  }
+});
 
 captionSchema.methods.generateAuth=  function(){
   const token = jwt.sign({_id:this._id}, jwt_secret, {expiresIn:'24h'});

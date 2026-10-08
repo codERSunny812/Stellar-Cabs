@@ -27,7 +27,6 @@ firstName,lastName,email,password,color,numberPlate,capacity,model,vechileType
         }
        })
 
-       captionData.save();
 
        return captionData;
     } catch (error) {

@@ -49,8 +49,7 @@ const LocationSearchPanel = (props) => {
             </div>
             )
 })
-    }
-   
+    } 
     </>
   )
 }

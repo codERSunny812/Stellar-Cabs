@@ -10,7 +10,7 @@ const blackListedSchema = mongoose.Schema({
     },
     createdAt:{
         type:String,
-        default:Date.now(),
+        default:Date.now,
         expires:86400 //24 hour in second
     }
 })
