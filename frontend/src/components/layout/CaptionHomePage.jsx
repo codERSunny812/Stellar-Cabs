@@ -4,11 +4,12 @@ import imageUrl from "./../../assets/image/uber-black.png";
 import DriverStatus from "../feature/driver/DriverStatus";
 import DriverDetails from "../feature/driver/DriverDetails";
 import DriverRidePopUp from "../feature/driver/DriverRidePopUp";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext} from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import DriverRideDetail from "../feature/driver/DriverRideDetail";
 import axios from "axios";
+import { SocketContext } from "../../Context/SocketContext";
 
 const CaptionHomePageLayout = () => {
   // state variables
@@ -17,9 +18,11 @@ const CaptionHomePageLayout = () => {
   const [openDriverRidePanel, setOpenDriverRidePanel] = useState(false);
   const [captain, setCaptain] = useState(null); // logged-in captain ka data
   const [stats, setStats] = useState(null);
+  const { socket } = useContext(SocketContext);
   const driverRideDetailRef = useRef(null);
   const driverRidePopUpRef = useRef(null);
   const driverDetailRef = useRef(null);
+
 
   // page khulte hi captain ki profile lao
   useEffect(() => {
@@ -57,6 +60,22 @@ const CaptionHomePageLayout = () => {
 
 
     fetchProfile();
+  }, []);
+
+  // captain ka data aate hi server ko batao ki yeh socket kiska hai
+  useEffect(() => {
+    if (captain?._id) {
+      socket.emit("join", { userId: captain._id, userType: "caption" });
+    }
+  }, [captain]);
+
+
+  useEffect(() => {
+    socket.on("new-ride", (data) => {
+      console.log("NEW RIDE:", data);
+    });
+
+    return () => socket.off("new-ride");
   }, []);
 
   // animation for driver ride details container
