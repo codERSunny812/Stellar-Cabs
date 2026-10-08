@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { MdPinDrop } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
 import { GiTakeMyMoney } from "react-icons/gi";
-import { getVehicle } from "../utils/vehicles";
+import { getVehicle } from "../utils/vechiles";
 
 // driver mil gaya: uski detail aur OTP dikhao
 const WaitingForDriver = forwardRef(({ ride }, ref) => {

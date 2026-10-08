@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { FaUser } from "react-icons/fa";
-import { VEHICLES } from "../utils/vehicles";
+import { VEHICLES } from "../utils/vechiles";
 
 const ShowCabs = forwardRef(({ fareData, onSelect, setVechilePanel }, ref) => {
     const km = fareData ? (fareData.distance / 1000).toFixed(1) : null;
