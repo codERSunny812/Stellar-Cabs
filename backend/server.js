@@ -1,12 +1,15 @@
 const http =  require('http')
 const app = require('./app')
 const PORT = process.env.PORT || 4000
+const { initializeSocket } = require('./features/socket')
 
 
 
 
-//creating a http server over express for better 
+// express ke upar http server, taaki socket.io bhi isi par chal sake
 const server = http.createServer(app)
+
+initializeSocket(server)
 
 
 

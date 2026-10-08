@@ -8,6 +8,7 @@ const userRouter = require("./Routes/user.routes");
 const cookieParser = require("cookie-parser");
 const captionRouter = require("./Routes/caption.route");
 const MapRouter = require("./Routes/map.routes");
+const rideRouter = require("./Routes/ride.routes");
 
 
 //function to connect with DB
@@ -26,6 +27,7 @@ app.use(cookieParser()); //used so that we can interact with the front end cooki
 app.use("/users", userRouter);  //user middleware
 app.use('/caption',captionRouter)  //captain middleware
 app.use('/maps',MapRouter) // map middleware 
+app.use('/rides', rideRouter);
 
 //basic route to check the server
 app.get("/", (req, res) => {

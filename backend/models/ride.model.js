@@ -13,6 +13,7 @@ const rideSchema = new mongoose.Schema(
             default: 'pending',
         },
         otp: { type: String, select: false, required: true },
+        vehicleType: { type: String, enum: ['car', 'auto', 'bike'], required: true },
         distance: { type: Number }, // in meters only
         duration: { type: Number }, //  in seconds only
     },

@@ -24,3 +24,30 @@ module.exports.getLocationAddressCoordinate =async(adress)=>{
         throw error;
     }
 }
+
+
+// do jagahon ke beech doori (meters) aur samay (seconds)
+module.exports.getDistanceTime = async (origin, destination) => {
+    if (!origin || !destination) {
+        throw new Error('origin and destination are required');
+    }
+
+    const API_KEY = process.env.GOOGLE_MAP_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${API_KEY}`;
+
+    const resp = await axios.get(url);
+
+    if (resp.data.status !== 'OK') {
+        throw new Error(`distance matrix error: ${resp.data.status}`);
+    }
+
+    const element = resp.data.rows[0].elements[0];
+    if (element.status !== 'OK') {
+        throw new Error(`no route found: ${element.status}`);
+    }
+
+    return {
+        distance: element.distance.value, // meters
+        duration: element.duration.value, // seconds
+    };
+};

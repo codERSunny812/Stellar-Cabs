@@ -1,0 +1,47 @@
+const crypto = require('crypto');
+const rideModel = require('../models/ride.model');
+const { getDistanceTime } = require('./map.service');
+
+// har gaadi ka rate: base fare + per km + per minute
+const FARE_RATES = {
+    car: { base: 50, perKm: 15, perMin: 2 },
+    auto: { base: 30, perKm: 10, perMin: 1.5 },
+    bike: { base: 20, perKm: 8, perMin: 1 },
+};
+
+const calculateFare = (distance, duration) => {
+    const km = distance / 1000;
+    const min = duration / 60;
+    const fares = {};
+
+    for (const [type, rate] of Object.entries(FARE_RATES)) {
+        fares[type] = Math.round(rate.base + km * rate.perKm + min * rate.perMin);
+    }
+
+    return fares;
+};
+
+const getFare = async (pickup, destination) => {
+    const { distance, duration } = await getDistanceTime(pickup, destination);
+    return { fares: calculateFare(distance, duration), distance, duration };
+};
+
+// 4 digit ka OTP
+const generateOtp = () => crypto.randomInt(1000, 10000).toString();
+
+const createRide = async ({ userId, pickup, destination, vehicleType }) => {
+    const { fares, distance, duration } = await getFare(pickup, destination);
+
+    return rideModel.create({
+        user: userId,
+        pickup,
+        destination,
+        vehicleType,
+        fare: fares[vehicleType],
+        otp: generateOtp(),
+        distance,
+        duration,
+    });
+};
+
+module.exports = { getFare, createRide };
