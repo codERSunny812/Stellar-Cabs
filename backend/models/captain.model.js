@@ -64,13 +64,13 @@ const captionSchema = mongoose.Schema({
     }
 
   },
-  location:{
-    latitude:{
-        type:Number
-    },
-    longitude:{
-        type:Number
-    }
+  location: {
+    type: { type: String, enum: ["Point"] },
+    coordinates: { type: [Number], default: undefined }
+  },
+  // location aakhri baar kab aayi; purani location wale driver map par nahi dikhenge
+  locationUpdatedAt: {
+    type: Date
   }
 });
 
@@ -82,6 +82,8 @@ captionSchema.set('toJSON', {
     return ret;
   }
 });
+
+captionSchema.index({ location: "2dsphere" });
 
 captionSchema.methods.generateAuth=  function(){
   const token = jwt.sign({_id:this._id}, jwt_secret, {expiresIn:'24h'});

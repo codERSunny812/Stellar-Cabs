@@ -130,3 +130,44 @@ module.exports.cancelRide = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
+// user ke aas-paas ke online drivers (map par dikhane ke liye)
+module.exports.getNearbyCaptains = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const lat = Number(req.query.lat);
+    const lng = Number(req.query.lng);
+    const radiusKm = 5;
+
+    try {
+        const captains = await captionModel
+            .find({
+                status: 'active',
+                // pichhle 2 minute mein location bheji ho, yaani app sach mein khula hai
+                locationUpdatedAt: { $gte: new Date(Date.now() - 2 * 60 * 1000) },
+                // user se 5 km ke gol daayre ke andar (radius ko Earth ke radius se divide karte hain)
+                location: {
+                    $geoWithin: { $centerSphere: [[lng, lat], radiusKm / 6378.1] },
+                },
+            })
+            .select('location vechile.vechileType')
+            .limit(50);
+
+        // sirf jagah aur gaadi ka type bhejo; naam, email kuch nahi
+        const result = captains.map((captain) => ({
+            id: captain._id,
+            lat: captain.location.coordinates[1],
+            lng: captain.location.coordinates[0],
+            vehicleType: captain.vechile?.vechileType,
+        }));
+
+        return res.status(200).json({ captains: result });
+    } catch (error) {
+        console.log('error in nearby captains:', error.message);
+        return res.status(500).json({ message: error.message });
+    }
+};

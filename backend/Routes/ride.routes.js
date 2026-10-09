@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, query } = require('express-validator');
 const { authUser, authCaption } = require('../middleware/auth.middleware');
-const { getFare, createRide, confirmRide, cancelRide } = require('../controller/ride.controller');
+const { getFare, createRide, confirmRide, cancelRide, getNearbyCaptains } = require('../controller/ride.controller');
 
 const rideRouter = express.Router();
 
@@ -39,6 +39,17 @@ rideRouter.post(
     authCaption,
     [body('rideId').isMongoId().withMessage('invalid ride id')],
     cancelRide
+);
+
+
+rideRouter.get(
+    '/nearby-captains',
+    authUser,
+    [
+        query('lat').isFloat({ min: -90, max: 90 }).withMessage('invalid latitude'),
+        query('lng').isFloat({ min: -180, max: 180 }).withMessage('invalid longitude'),
+    ],
+    getNearbyCaptains
 );
 
 module.exports = rideRouter;

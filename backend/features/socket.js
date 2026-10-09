@@ -16,19 +16,43 @@ function initializeSocket(server) {
         // app khulne par user ya captain batata hai ki woh kaun hai
         socket.on('join', async ({ userId, userType }) => {
             try {
+                // yaad rakho yeh socket kiska hai (chat aur location mein kaam aayega)
+                // await se pehle, taaki turant aane wale events ko bhi pata ho
+                socket.data.userId = String(userId);
+                socket.data.userType = userType;
+
                 if (userType === 'user') {
                     await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
                 } else if (userType === 'caption') {
                     await captionModel.findByIdAndUpdate(userId, { socketId: socket.id });
                 }
 
-                // yaad rakho yeh socket kiska hai, chat mein kaam aayega
-                socket.data.userId = String(userId);
-                socket.data.userType = userType;
-
                 console.log(`${userType} ${userId} joined with socket ${socket.id}`);
             } catch (error) {
                 console.log('error in join:', error);
+            }
+        });
+
+        // driver har kuch second mein apni location bhejta hai
+        socket.on('update-location', async ({ lat, lng } = {}) => {
+            try {
+                if (socket.data.userType !== 'caption') return;
+
+                const latitude = Number(lat);
+                const longitude = Number(lng);
+                if (
+                    !Number.isFinite(latitude) || !Number.isFinite(longitude) ||
+                    Math.abs(latitude) > 90 || Math.abs(longitude) > 180
+                ) {
+                    return;
+                }
+
+                await captionModel.findByIdAndUpdate(socket.data.userId, {
+                    location: { type: 'Point', coordinates: [longitude, latitude] },
+                    locationUpdatedAt: new Date(),
+                });
+            } catch (error) {
+                console.log('error in update-location:', error.message);
             }
         });
 
