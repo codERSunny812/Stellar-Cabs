@@ -63,5 +63,22 @@ const confirmRide = async ({ rideId, captainId }) => {
 };
 
 
+const cancelRideByCaptain = async ({ rideId, captainId }) => {
+    const ride = await rideModel
+        .findOneAndUpdate(
+            { _id: rideId, captain: captainId, status: 'accepted' },
+            { status: 'cancelled' },
+            { new: true }
+        )
+        .populate('user', 'fullName email socketId');
 
-module.exports = { getFare, createRide, confirmRide };
+    if (!ride) {
+        throw new Error('ride cannot be cancelled');
+    }
+
+    return ride;
+};
+
+
+
+module.exports = { getFare, createRide, confirmRide, cancelRideByCaptain };

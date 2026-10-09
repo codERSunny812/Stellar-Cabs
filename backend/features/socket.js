@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const userModel = require('../models/user.model');
 const captionModel = require('../models/captain.model');
+const rideModel = require('../models/ride.model');
 
 let io;
 
@@ -20,9 +21,62 @@ function initializeSocket(server) {
                 } else if (userType === 'caption') {
                     await captionModel.findByIdAndUpdate(userId, { socketId: socket.id });
                 }
+
+                // yaad rakho yeh socket kiska hai, chat mein kaam aayega
+                socket.data.userId = String(userId);
+                socket.data.userType = userType;
+
                 console.log(`${userType} ${userId} joined with socket ${socket.id}`);
             } catch (error) {
                 console.log('error in join:', error);
+            }
+        });
+
+        // ride ke dauraan user aur driver ki chat
+        socket.on('send-message', async ({ rideId, text } = {}, ack) => {
+            const reply = typeof ack === 'function' ? ack : () => { };
+
+            try {
+                const message = String(text ?? '').trim();
+                if (!message || message.length > 500) {
+                    return reply({ ok: false, error: 'invalid message' });
+                }
+
+                const ride = await rideModel
+                    .findById(rideId)
+                    .populate('user', 'socketId')
+                    .populate('captain', 'socketId');
+
+                // chat sirf accept ke baad aur ride khatam hone se pehle
+                if (!ride || !['accepted', 'ongoing'].includes(ride.status)) {
+                    return reply({ ok: false, error: 'chat not available for this ride' });
+                }
+
+                // bhejne wala sach mein isi ride ka user ya driver hai?
+                const { userId, userType } = socket.data;
+                const isUser = userType === 'user' && String(ride.user?._id) === userId;
+                const isCaptain = userType === 'caption' && String(ride.captain?._id) === userId;
+
+                if (!isUser && !isCaptain) {
+                    return reply({ ok: false, error: 'you are not part of this ride' });
+                }
+
+                const receiverSocketId = isUser ? ride.captain?.socketId : ride.user?.socketId;
+                const payload = {
+                    rideId: String(ride._id),
+                    text: message,
+                    from: userType,
+                    at: new Date().toISOString(),
+                };
+
+                if (receiverSocketId) {
+                    io.to(receiverSocketId).emit('new-message', payload);
+                }
+
+                return reply({ ok: true, message: payload });
+            } catch (error) {
+                console.log('error in send-message:', error.message);
+                return reply({ ok: false, error: 'could not send message' });
             }
         });
 
@@ -32,7 +86,7 @@ function initializeSocket(server) {
     });
 }
 
-// kisi ek socket ko message bhejne ke liye (3b mein kaam aayega)
+// kisi ek socket ko message bhejne ke liye
 function sendMessageToSocketId(socketId, event, data) {
     if (io) {
         io.to(socketId).emit(event, data);

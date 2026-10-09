@@ -98,3 +98,35 @@ module.exports.confirmRide = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+// driver ne ride cancel ki: user ko batao
+module.exports.cancelRide = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const ride = await rideService.cancelRideByCaptain({
+            rideId: req.body.rideId,
+            captainId: req.caption._id,
+        });
+
+        const rideData = ride.toObject();
+        const userSocketId = rideData.user?.socketId;
+        delete rideData.user.socketId;
+
+        if (userSocketId) {
+            sendMessageToSocketId(userSocketId, 'ride-cancelled', rideData);
+        }
+
+        return res.status(200).json({ ride: rideData });
+    } catch (error) {
+        console.log('error in cancelling ride:', error.message);
+
+        if (error.message === 'ride cannot be cancelled') {
+            return res.status(409).json({ message: 'ride cannot be cancelled now' });
+        }
+        return res.status(500).json({ message: error.message });
+    }
+};
