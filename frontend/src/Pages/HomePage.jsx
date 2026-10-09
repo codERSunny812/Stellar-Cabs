@@ -9,6 +9,8 @@ import ConfirmedVechile from "../components/ConfirmedVechile";
 import WaitingForDriver from "../components/WaitingForDriver";
 import LookingForDriver from "../components/LookingForDriver";
 import { SocketContext } from "../Context/SocketContext";
+import RideChat from "../components/common/RideChat";
+import { useRideChat } from "../hooks/useRideChat";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -34,6 +36,8 @@ const HomePage = () => {
   const [creatingRide, setCreatingRide] = useState(false);
 
   const { socket } = useContext(SocketContext);
+  // driver se chat (accept hone ke baad)
+  const chat = useRideChat(socket, ride?._id);
 
   const confirmVechilePanelRef = useRef(null);
   const vechilePanelRef = useRef(null);
@@ -74,6 +78,20 @@ const HomePage = () => {
     socket.on("ride-confirmed", handleRideConfirmed);
     return () => socket.off("ride-confirmed", handleRideConfirmed);
   }, []);
+
+  // driver ne ride cancel ki
+  useEffect(() => {
+    const handleRideCancelled = () => {
+      setWaitingForDriver(false);
+      setVechileFound(false);
+      setRide(null);
+      chat.closeChat();
+      toast.error("driver cancelled the ride, please book again");
+    };
+
+    socket.on("ride-cancelled", handleRideCancelled);
+    return () => socket.off("ride-cancelled", handleRideCancelled);
+  }, [chat.closeChat]);
 
   // pickup aur drop daalkar "find ride" dabane par kiraya lao
   const submitHandler = async (e) => {
@@ -233,7 +251,23 @@ const HomePage = () => {
 
       <LookingForDriver ref={vechileFoundRef} ride={ride} />
 
-      <WaitingForDriver ref={waitingForDriverRef} ride={ride} />
+      <WaitingForDriver
+        ref={waitingForDriverRef}
+        ride={ride}
+        onMessage={chat.openChat}
+        unread={chat.unread}
+      />
+
+      {/* driver se chat */}
+      {chat.isOpen && ride?.captain && (
+        <RideChat
+          title={`${ride.captain.fullName?.firstName ?? ""} ${ride.captain.fullName?.lastName ?? ""}`}
+          me="user"
+          messages={chat.messages}
+          onSend={chat.sendMessage}
+          onClose={chat.closeChat}
+        />
+      )}
     </div>
   );
 };

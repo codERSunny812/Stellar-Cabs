@@ -3,13 +3,7 @@ import { IoCall } from "react-icons/io5";
 import { FaMessage } from "react-icons/fa6";
 import { FcCancel } from "react-icons/fc";
 
-const ActionButton = [
-    { icon: IoCall, text: "call" },
-    { icon: FaMessage, text: "message" },
-    { icon: FcCancel, text: "cancel" },
-];
-
-const DriverRideDetail = ({ ride }) => {
+const DriverRideDetail = ({ ride, onMessage, onCancel, unread = 0 }) => {
     const userName = `${ride.user?.fullName?.firstname ?? ""} ${ride.user?.fullName?.lastname ?? ""}`;
 
     return (
@@ -64,17 +58,30 @@ const DriverRideDetail = ({ ride }) => {
                     </div>
                 </div>
 
-                {/* action buttons (abhi kaam nahi karte) */}
+                {/* action buttons */}
                 <div className="flex items-center justify-around mt-4 mb-2">
-                    {ActionButton.map((data, key) => {
-                        const Icon = data.icon;
-                        return (
-                            <div className="flex items-center flex-col" key={key}>
-                                <Icon className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
-                                <p className="text-base">{data.text}</p>
-                            </div>
-                        );
-                    })}
+                    {/* call: phone number aane ke baad chalega */}
+                    <div className="flex items-center flex-col opacity-40" title="phone number not added yet">
+                        <IoCall className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
+                        <p className="text-base">call</p>
+                    </div>
+
+                    {/* message: chat kholo */}
+                    <button onClick={onMessage} className="flex items-center flex-col relative">
+                        <FaMessage className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
+                        {unread > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+                                {unread}
+                            </span>
+                        )}
+                        <p className="text-base">message</p>
+                    </button>
+
+                    {/* cancel: ride cancel karo */}
+                    <button onClick={onCancel} className="flex items-center flex-col">
+                        <FcCancel className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
+                        <p className="text-base">cancel</p>
+                    </button>
                 </div>
             </div>
 

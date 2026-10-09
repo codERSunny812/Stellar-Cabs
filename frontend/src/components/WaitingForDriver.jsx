@@ -2,10 +2,11 @@ import { forwardRef } from "react";
 import { MdPinDrop } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
 import { GiTakeMyMoney } from "react-icons/gi";
+import { FaMessage } from "react-icons/fa6";
 import { getVehicle } from "../utils/vechiles";
 
 // driver mil gaya: uski detail aur OTP dikhao
-const WaitingForDriver = forwardRef(({ ride }, ref) => {
+const WaitingForDriver = forwardRef(({ ride, onMessage, unread = 0 }, ref) => {
   const captain = ride?.captain;
   const vehicle = getVehicle(ride?.vehicleType);
   const driverName = captain
@@ -36,6 +37,20 @@ const WaitingForDriver = forwardRef(({ ride }, ref) => {
           </h4>
         </div>
       </div>
+
+      {/* driver ko message */}
+      <button
+        onClick={onMessage}
+        className="relative w-full flex items-center justify-center gap-2 bg-gray-200 rounded-xl py-3 mb-4 font-semibold capitalize"
+      >
+        <FaMessage className="h-5 w-5" />
+        message driver
+        {unread > 0 && (
+          <span className="absolute top-2 right-3 bg-red-500 text-white text-xs rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+            {unread}
+          </span>
+        )}
+      </button>
 
       {/* ride ki detail */}
       <div className="w-full flex flex-col">

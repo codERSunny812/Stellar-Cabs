@@ -12,6 +12,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { SocketContext } from "../../Context/SocketContext";
 import LiveMap from "../common/LiveMap";
+import RideChat from "../common/RideChat";
+import { useRideChat } from "../../hooks/useRideChat";
 
 const CaptionHomePageLayout = () => {
   // state variables
@@ -24,6 +26,9 @@ const CaptionHomePageLayout = () => {
   const [acceptedRide, setAcceptedRide] = useState(null); // accept ki hui ride
 
   const { socket } = useContext(SocketContext);
+
+  // accept ki hui ride ki chat
+  const chat = useRideChat(socket, acceptedRide?._id);
 
   const driverRideDetailRef = useRef(null);
   const driverRidePopUpRef = useRef(null);
@@ -110,6 +115,30 @@ const CaptionHomePageLayout = () => {
     }
   };
 
+  // driver ride cancel kare
+  const handleCancelRide = async () => {
+    if (!acceptedRide) return;
+    if (!window.confirm("cancel this ride?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/cancel`,
+        { rideId: acceptedRide._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.info("ride cancelled");
+      chat.closeChat();
+      setAcceptedRide(null);
+      setOpenDriverRidePanel(false);
+      setDriverRideDetail(true);
+    } catch (error) {
+      console.log("cancel ride error:", error);
+      toast.error(error.response?.data?.message || "could not cancel ride");
+    }
+  };
+
   // animation for driver ride details container
   useGSAP(() => {
     gsap.to(driverRideDetailRef.current, {
@@ -160,7 +189,6 @@ const CaptionHomePageLayout = () => {
         </div>
       </div>
 
-     
       {/* live map */}
       <div className="h-1/2 w-full relative z-0">
         <LiveMap />
@@ -180,9 +208,25 @@ const CaptionHomePageLayout = () => {
         />
 
         {openDriverRidePanel && acceptedRide && (
-          <DriverRideDetail ride={acceptedRide} />
+          <DriverRideDetail
+            ride={acceptedRide}
+            onMessage={chat.openChat}
+            onCancel={handleCancelRide}
+            unread={chat.unread}
+          />
         )}
       </div>
+
+      {/* user se chat */}
+      {chat.isOpen && acceptedRide && (
+        <RideChat
+          title={`${acceptedRide.user?.fullName?.firstname ?? ""} ${acceptedRide.user?.fullName?.lastname ?? ""}`}
+          me="caption"
+          messages={chat.messages}
+          onSend={chat.sendMessage}
+          onClose={chat.closeChat}
+        />
+      )}
     </div>
   );
 };
