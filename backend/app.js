@@ -15,11 +15,11 @@ const rideRouter = require("./Routes/ride.routes");
 connectToDb();
 
 
-// middlewares
-app.use(cors({
-  origin:"*",
-  credentials:true
-})); //use the cors
+// sirf apne frontend ko allow karo; CLIENT_URL na ho (local) to sab allow
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : "*";
+
+app.use(cors({ origin: allowedOrigins }));
+
 app.use(express.json()); //used to parse the json request
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); //used so that we can interact with the front end cookies

@@ -7,7 +7,10 @@ let io;
 
 function initializeSocket(server) {
     io = new Server(server, {
-        cors: { origin: '*', methods: ['GET', 'POST'] },
+        cors: {
+            origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : '*',
+            methods: ['GET', 'POST'],
+        },
     });
 
     io.on('connection', (socket) => {
