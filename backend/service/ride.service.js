@@ -80,5 +80,47 @@ const cancelRideByCaptain = async ({ rideId, captainId }) => {
 };
 
 
+// driver ne user se OTP liya: sahi ho to ride shuru
+const startRide = async ({ rideId, otp, captainId }) => {
+    // OTP select: false hai, isliye yahan khud maangna padega
+    const ride = await rideModel
+        .findOne({ _id: rideId, captain: captainId })
+        .select('+otp');
 
-module.exports = { getFare, createRide, confirmRide, cancelRideByCaptain };
+    if (!ride) {
+        throw new Error('ride not found');
+    }
+    if (ride.status !== 'accepted') {
+        throw new Error('ride is not accepted');
+    }
+    if (ride.otp !== otp) {
+        throw new Error('invalid otp');
+    }
+
+    ride.status = 'ongoing';
+    await ride.save();
+    await ride.populate('user', 'fullName email socketId');
+    await ride.populate('captain', 'fullName vechile');
+
+    return ride;
+};
+
+// manzil par pahunch kar ride khatam
+const finishRide = async ({ rideId, captainId }) => {
+    const ride = await rideModel
+        .findOneAndUpdate(
+            { _id: rideId, captain: captainId, status: 'ongoing' },
+            { status: 'completed' },
+            { new: true }
+        )
+        .populate('user', 'fullName email socketId')
+        .populate('captain', 'fullName vechile');
+
+    if (!ride) {
+        throw new Error('ride not found or not ongoing');
+    }
+
+    return ride;
+};
+
+module.exports = { getFare, createRide, confirmRide, cancelRideByCaptain, startRide, finishRide };

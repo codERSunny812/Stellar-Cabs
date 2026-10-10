@@ -13,6 +13,7 @@ import CaptionHomePage from './Pages/CaptionHomePage'
 import CaptionProctected from './utils/CaptionProctected'
 import BookedRide from './components/BookedRide'
 import CaptionAccount from './Pages/CaptionAccount'
+import UserAccount from './Pages/UserAccount'
 import { toast } from 'react-toastify';
 import { useEffect, useState } from 'react'
 
@@ -81,6 +82,14 @@ function App() {
               <CaptionProctected>
                 <CaptionAccount />
               </CaptionProctected>
+            }
+          />
+          <Route
+            path='/user/account'
+            element={
+              <UserProtectedRoute>
+                <UserAccount />
+              </UserProtectedRoute>
             }
           />
           <Route path='/user/forgot-password' element={<ForgotPassword />} />

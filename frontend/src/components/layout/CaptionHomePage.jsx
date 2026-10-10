@@ -4,7 +4,7 @@ import imageUrl from "./../../assets/image/uber-black.png";
 import DriverStatus from "../feature/driver/DriverStatus";
 import DriverDetails from "../feature/driver/DriverDetails";
 import DriverRidePopUp from "../feature/driver/DriverRidePopUp";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import DriverRideDetail from "../feature/driver/DriverRideDetail";
@@ -24,26 +24,44 @@ const CaptionHomePageLayout = () => {
   const [stats, setStats] = useState(null);
   const [newRide, setNewRide] = useState(null); // popup wali ride
   const [acceptedRide, setAcceptedRide] = useState(null); // accept ki hui ride
+  const [rideActionLoading, setRideActionLoading] = useState(false); // start/finish chal raha hai
 
   const { socket } = useContext(SocketContext);
 
   // accept ki hui ride ki chat
   const chat = useRideChat(socket, acceptedRide?._id);
 
+  // driver ki taaza location (map se aati hai)
+  const positionRef = useRef(null);
+  const handleLocation = useCallback((position) => {
+    positionRef.current = position;
+  }, []);
+
   const driverRideDetailRef = useRef(null);
   const driverRidePopUpRef = useRef(null);
   const driverDetailRef = useRef(null);
 
+  // driver ke stats (trips, distance, earning); ride finish hone par dobara bhi chalega
+  const fetchStats = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const resp = await axios.get(`${import.meta.env.VITE_BASE_URL}/caption/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStats(resp.data);
+    } catch (error) {
+      console.log("stats fetch error:", error);
+    }
+  }, []);
+
   // page khulte hi profile aur stats lao
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const headers = { Authorization: `Bearer ${token}` };
-
     const fetchProfile = async () => {
       try {
+        const token = localStorage.getItem("token");
         const resp = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/caption/profile-caption`,
-          { headers }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         setCaptain(resp.data.caption);
       } catch (error) {
@@ -51,21 +69,9 @@ const CaptionHomePageLayout = () => {
       }
     };
 
-    const fetchStats = async () => {
-      try {
-        const resp = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/caption/stats`,
-          { headers }
-        );
-        setStats(resp.data);
-      } catch (error) {
-        console.log("stats fetch error:", error);
-      }
-    };
-
     fetchProfile();
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   // captain ka data aate hi server ko batao ki yeh socket kiska hai
   useEffect(() => {
@@ -73,6 +79,21 @@ const CaptionHomePageLayout = () => {
       socket.emit("join", { userId: captain._id, userType: "caption" });
     }
   }, [captain]);
+
+  // har 10 second mein apni location server ko bhejo, taaki user ke map par dikhe
+  useEffect(() => {
+    if (!captain?._id) return;
+
+    const sendLocation = () => {
+      if (!positionRef.current) return;
+      const [lat, lng] = positionRef.current;
+      socket.emit("update-location", { lat, lng });
+    };
+
+    sendLocation();
+    const intervalId = setInterval(sendLocation, 10000);
+    return () => clearInterval(intervalId);
+  }, [captain, socket]);
 
   // nayi ride aane par popup kholo
   useEffect(() => {
@@ -139,6 +160,56 @@ const CaptionHomePageLayout = () => {
     }
   };
 
+  // user se OTP lekar ride shuru karo
+  const handleStartRide = async (otp) => {
+    if (!acceptedRide) return;
+
+    try {
+      setRideActionLoading(true);
+      const token = localStorage.getItem("token");
+      const resp = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/start`,
+        { rideId: acceptedRide._id, otp },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setAcceptedRide(resp.data.ride); // status ab "ongoing"
+      toast.success("ride started");
+    } catch (error) {
+      console.log("start ride error:", error);
+      toast.error(error.response?.data?.message || "could not start ride");
+    } finally {
+      setRideActionLoading(false);
+    }
+  };
+
+  // manzil par pahunch kar ride khatam karo
+  const handleFinishRide = async () => {
+    if (!acceptedRide) return;
+
+    try {
+      setRideActionLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/finish`,
+        { rideId: acceptedRide._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      toast.success(`ride completed, collect ₹${acceptedRide.fare}`);
+      chat.closeChat();
+      setAcceptedRide(null);
+      setOpenDriverRidePanel(false);
+      setDriverRideDetail(true);
+      fetchStats(); // trips aur earning badh gaye
+    } catch (error) {
+      console.log("finish ride error:", error);
+      toast.error(error.response?.data?.message || "could not finish ride");
+    } finally {
+      setRideActionLoading(false);
+    }
+  };
+
   // animation for driver ride details container
   useGSAP(() => {
     gsap.to(driverRideDetailRef.current, {
@@ -191,7 +262,7 @@ const CaptionHomePageLayout = () => {
 
       {/* live map */}
       <div className="h-1/2 w-full relative z-0">
-        <LiveMap />
+        <LiveMap onLocation={handleLocation} />
       </div>
 
       {/* end container for driver detail */}
@@ -212,7 +283,10 @@ const CaptionHomePageLayout = () => {
             ride={acceptedRide}
             onMessage={chat.openChat}
             onCancel={handleCancelRide}
+            onStart={handleStartRide}
+            onFinish={handleFinishRide}
             unread={chat.unread}
+            loading={rideActionLoading}
           />
         )}
       </div>

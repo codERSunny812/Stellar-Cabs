@@ -171,3 +171,72 @@ module.exports.getNearbyCaptains = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+
+
+// user ko socket se batao, aur OTP kabhi bahar na jaaye
+const notifyUser = (ride, event) => {
+    const data = ride.toObject();
+    const userSocketId = data.user?.socketId;
+
+    if (data.user) delete data.user.socketId;
+    delete data.otp;
+
+    if (userSocketId) {
+        sendMessageToSocketId(userSocketId, event, data);
+    }
+    return data;
+};
+
+// driver OTP daal kar ride shuru kare
+module.exports.startRide = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const ride = await rideService.startRide({
+            rideId: req.body.rideId,
+            otp: req.body.otp,
+            captainId: req.caption._id,
+        });
+
+        const rideData = notifyUser(ride, 'ride-started');
+        return res.status(200).json({ ride: rideData });
+    } catch (error) {
+        console.log('error in starting ride:', error.message);
+
+        const statusMap = {
+            'invalid otp': 400,
+            'ride not found': 404,
+            'ride is not accepted': 409,
+        };
+        return res.status(statusMap[error.message] || 500).json({ message: error.message });
+    }
+};
+
+// driver ride khatam kare
+module.exports.finishRide = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const ride = await rideService.finishRide({
+            rideId: req.body.rideId,
+            captainId: req.caption._id,
+        });
+
+        const rideData = notifyUser(ride, 'ride-ended');
+        return res.status(200).json({ ride: rideData });
+    } catch (error) {
+        console.log('error in finishing ride:', error.message);
+
+        if (error.message === 'ride not found or not ongoing') {
+            return res.status(404).json({ message: error.message });
+        }
+        return res.status(500).json({ message: error.message });
+    }
+};

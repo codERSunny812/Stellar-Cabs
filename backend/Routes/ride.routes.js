@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, query } = require('express-validator');
 const { authUser, authCaption } = require('../middleware/auth.middleware');
-const { getFare, createRide, confirmRide, cancelRide, getNearbyCaptains } = require('../controller/ride.controller');
+const { getFare, createRide, confirmRide, cancelRide, getNearbyCaptains,startRide,finishRide } = require('../controller/ride.controller');
 
 const rideRouter = express.Router();
 
@@ -50,6 +50,23 @@ rideRouter.get(
         query('lng').isFloat({ min: -180, max: 180 }).withMessage('invalid longitude'),
     ],
     getNearbyCaptains
+);
+
+rideRouter.post(
+    '/start',
+    authCaption,
+    [
+        body('rideId').isMongoId().withMessage('invalid ride id'),
+        body('otp').isLength({ min: 4, max: 4 }).isNumeric().withMessage('otp must be 4 digits'),
+    ],
+    startRide
+);
+
+rideRouter.post(
+    '/finish',
+    authCaption,
+    [body('rideId').isMongoId().withMessage('invalid ride id')],
+    finishRide
 );
 
 module.exports = rideRouter;

@@ -1,4 +1,6 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
 import logoImg from "../assets/image/uber-black.png";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -8,8 +10,11 @@ import ShowCabs from "../components/ShowCabs";
 import ConfirmedVechile from "../components/ConfirmedVechile";
 import WaitingForDriver from "../components/WaitingForDriver";
 import LookingForDriver from "../components/LookingForDriver";
+import RidingPanel from "../components/RidingPanel";
+import RideCompleted from "../components/RideCompleted";
 import { SocketContext } from "../Context/SocketContext";
 import RideChat from "../components/common/RideChat";
+import LiveMap from "../components/common/LiveMap";
 import { useRideChat } from "../hooks/useRideChat";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -19,7 +24,6 @@ const authHeaders = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 });
 
-
 const HomePage = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
@@ -27,6 +31,8 @@ const HomePage = () => {
   const [confirmVechilePanel, setConfirmVechilePanel] = useState(false);
   const [vechileFound, setVechileFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+  const [riding, setRiding] = useState(false); // ride chal rahi hai
+  const [rideCompleted, setRideCompleted] = useState(false); // ride khatam
 
   const [user, setUser] = useState(null); // logged-in user
   const [fareData, setFareData] = useState(null); // { fares, distance, duration, pickup, destination }
@@ -35,7 +41,12 @@ const HomePage = () => {
   const [ride, setRide] = useState(null); // bani hui ride (OTP ke saath)
   const [creatingRide, setCreatingRide] = useState(false);
 
+  const [nearbyCaptains, setNearbyCaptains] = useState([]); // map par dikhne wale drivers
+  const [hasLocation, setHasLocation] = useState(false);
+  const userPositionRef = useRef(null);
+
   const { socket } = useContext(SocketContext);
+
   // driver se chat (accept hone ke baad)
   const chat = useRideChat(socket, ride?._id);
 
@@ -43,6 +54,8 @@ const HomePage = () => {
   const vechilePanelRef = useRef(null);
   const vechileFoundRef = useRef(null);
   const waitingForDriverRef = useRef(null);
+  const ridingRef = useRef(null);
+  const rideCompletedRef = useRef(null);
 
   // page khulte hi user ki profile lao
   useEffect(() => {
@@ -57,6 +70,34 @@ const HomePage = () => {
 
     fetchProfile();
   }, []);
+
+  // map se user ki location aati hai
+  const handleLocation = useCallback((position) => {
+    userPositionRef.current = position;
+    setHasLocation(true);
+  }, []);
+
+  // location milte hi aur phir har 10 second mein paas ke drivers lao
+  useEffect(() => {
+    if (!hasLocation) return;
+
+    const fetchNearbyCaptains = async () => {
+      const [lat, lng] = userPositionRef.current;
+      try {
+        const resp = await axios.get(`${BASE_URL}/rides/nearby-captains`, {
+          params: { lat, lng },
+          ...authHeaders(),
+        });
+        setNearbyCaptains(resp.data.captains);
+      } catch (error) {
+        console.log("nearby captains error:", error);
+      }
+    };
+
+    fetchNearbyCaptains();
+    const intervalId = setInterval(fetchNearbyCaptains, 10000);
+    return () => clearInterval(intervalId);
+  }, [hasLocation]);
 
   // user ka data aate hi server ko batao ki yeh socket kiska hai
   useEffect(() => {
@@ -92,6 +133,42 @@ const HomePage = () => {
     socket.on("ride-cancelled", handleRideCancelled);
     return () => socket.off("ride-cancelled", handleRideCancelled);
   }, [chat.closeChat]);
+
+  // driver ne sahi OTP daala: ride shuru
+  useEffect(() => {
+    const handleRideStarted = (startedRide) => {
+      setRide((prev) => ({ ...startedRide, otp: prev?.otp }));
+      setWaitingForDriver(false);
+      setRiding(true);
+      toast.success("ride started, enjoy your trip!");
+    };
+
+    socket.on("ride-started", handleRideStarted);
+    return () => socket.off("ride-started", handleRideStarted);
+  }, []);
+
+  // driver ne ride khatam ki
+  useEffect(() => {
+    const handleRideEnded = (endedRide) => {
+      setRide(endedRide);
+      setRiding(false);
+      setRideCompleted(true);
+      chat.closeChat();
+    };
+
+    socket.on("ride-ended", handleRideEnded);
+    return () => socket.off("ride-ended", handleRideEnded);
+  }, [chat.closeChat]);
+
+  // "done" dabane par sab saaf, nayi ride ke liye taiyaar
+  const handleRideDone = () => {
+    setRideCompleted(false);
+    setRide(null);
+    setFareData(null);
+    setSelectedVehicle(null);
+    setPickUpLocation("");
+    setDropLocation("");
+  };
 
   // pickup aur drop daalkar "find ride" dabane par kiraya lao
   const submitHandler = async (e) => {
@@ -190,22 +267,46 @@ const HomePage = () => {
     });
   }, [waitingForDriver]);
 
+  useGSAP(() => {
+    gsap.to(ridingRef.current, {
+      yPercent: riding ? 0 : 100, // apni height ka 100% neeche = chhupa hua
+      duration: riding ? 1 : 0.5,
+      ease: "power2.inOut",
+    });
+  }, [riding]);
+
+  useGSAP(() => {
+    gsap.to(rideCompletedRef.current, {
+      yPercent: rideCompleted ? 0 : 100, // apni height ka 100% neeche = chhupa hua
+      duration: rideCompleted ? 1 : 0.5,
+      ease: "power2.inOut",
+    });
+  }, [rideCompleted]);
+
   return (
     <div className="h-screen relative overflow-hidden">
-      <img src={logoImg} alt="uber logo" className="w-16 absolute left-5 top-5" />
+      <img src={logoImg} alt="uber logo" className="w-16 absolute left-5 top-5 z-10" />
 
-      <div className="h-screen w-screen">
-        <img
-          src="https://i2-prod.mylondon.news/article16106961.ece/ALTERNATES/s615/2_Uber-pink-cars.jpg"
-          alt=""
-          className="h-full w-full object-cover"
-        />
+      {/* account page ka button */}
+      <Link to="/user/account" className="absolute right-5 top-4 z-10">
+        <FaUserCircle className="h-10 w-10 bg-white rounded-full text-gray-800" />
+      </Link>
+
+      {/* live map: user ki jagah aur paas ke drivers */}
+      <div className="h-[65vh] w-full relative z-0">
+        <LiveMap markers={nearbyCaptains} onLocation={handleLocation} />
       </div>
 
-      <div className="absolute top-0 h-screen w-full flex flex-col justify-end">
+      {/* pointer-events-none: khaali hisse par click neeche map tak jaaye */}
+      <div className="absolute top-0 h-screen w-full flex flex-col justify-end pointer-events-none">
         {/* location search form */}
-        <div className="bg-white p-5">
+        <div className="bg-white p-5 pointer-events-auto">
           <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
+          <p className="text-sm text-gray-500 mt-1">
+            {nearbyCaptains.length > 0
+              ? `${nearbyCaptains.length} driver${nearbyCaptains.length > 1 ? "s" : ""} nearby`
+              : "no drivers nearby right now"}
+          </p>
 
           <form onSubmit={submitHandler} className="flex flex-col gap-2.5">
             <input
@@ -257,6 +358,15 @@ const HomePage = () => {
         onMessage={chat.openChat}
         unread={chat.unread}
       />
+
+      <RidingPanel
+        ref={ridingRef}
+        ride={ride}
+        onMessage={chat.openChat}
+        unread={chat.unread}
+      />
+
+      <RideCompleted ref={rideCompletedRef} ride={ride} onDone={handleRideDone} />
 
       {/* driver se chat */}
       {chat.isOpen && ride?.captain && (
