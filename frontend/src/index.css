@@ -1,1 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
+
+/* poore app ke rang aur font ek jagah; Tailwind inse classes banata hai (bg-ink, text-muted, ...) */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0a0a0a;        /* main kaala */
+  --color-surface: #f4f4f5;    /* inputs / cards ka halka grey */
+  --color-line: #e4e4e7;       /* borders */
+  --color-muted: #71717a;      /* chhota grey text */
+  --color-brand: #16a34a;      /* ek hi accent: green (online, success) */
+  --color-danger: #dc2626;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-neutral-200 font-sans text-ink antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input {
+    @apply outline-none;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+/* sab buttons ka common base; btn-primary waghera isi ko use karte hain */
+@utility btn {
+  @apply inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-base font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+}
+
+@layer components {
+  /* desktop par bhi phone jaisa dikhe: beech mein 430px ka frame.
+     transform lagane se andar ke "fixed" panels isi frame ke andar rehte hain */
+  .app-shell {
+    @apply relative mx-auto h-full w-full max-w-[430px] overflow-hidden bg-white;
+    transform: translateZ(0);
+    box-shadow: 0 0 40px rgb(0 0 0 / 0.12);
+  }
+
+  .btn-primary {
+    @apply btn bg-ink text-white hover:bg-neutral-800;
+  }
+  .btn-secondary {
+    @apply btn bg-surface text-ink hover:bg-line;
+  }
+  .btn-success {
+    @apply btn bg-brand text-white hover:bg-green-700;
+  }
+  .btn-danger {
+    @apply btn bg-red-50 text-danger hover:bg-red-100;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-transparent bg-surface px-4 py-3.5 text-base transition placeholder:text-zinc-400 focus:border-ink focus:bg-white;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-zinc-700;
+  }
+
+  /* neeche se aane wala panel */
+  .sheet {
+    @apply fixed bottom-0 left-0 z-20 max-h-[88vh] w-full overflow-y-auto rounded-t-3xl bg-white px-5 pt-3 pb-6;
+    box-shadow: 0 -8px 30px rgb(0 0 0 / 0.12);
+  }
+  .sheet-handle {
+    @apply mx-auto mb-4 h-1.5 w-12 rounded-full bg-zinc-300;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold tracking-wider text-muted uppercase;
+  }
+}
+
+/* "driver dhoondh rahe hain" wali chalti patti */
+@keyframes scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+.animate-scan {
+  animation: scan 1.4s ease-in-out infinite;
+}
+
+/* map par user ka neela dot, uske chaaron taraf lehar */
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.user-dot {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #2563eb;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.35);
+}
+.user-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: #2563eb;
+  animation: pulse-ring 2s ease-out infinite;
+  z-index: -1;
+}
+
+/* map par driver ki gaadi */
+.vehicle-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: #0a0a0a;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  font-size: 17px;
+}
+
+/* leaflet ka attribution chhota aur saaf */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgb(255 255 255 / 0.7) !important;
+}
