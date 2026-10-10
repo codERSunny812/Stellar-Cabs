@@ -1,76 +1,57 @@
 import { forwardRef } from "react";
-import { FaLocationDot } from "react-icons/fa6";
-import { MdPinDrop } from "react-icons/md";
+import Sheet from "../../ui/Sheet";
+import Avatar from "../../ui/Avatar";
+import TripRoute from "../../ui/TripRoute";
+import { getVehicle } from "../../../utils/vechiles";
 
-const DriverRidePopUp = forwardRef(({ ride, onIgnore, onAccept }, ref) => {
+// nayi ride aayi: kiraya, doori, raasta aur accept/ignore
+const DriverRidePopUp = forwardRef(({ ride, onIgnore, onAccept, loading = false }, ref) => {
   // user model mein firstname/lastname chhote letters mein hai
   const userName = ride
-    ? `${ride.user?.fullName?.firstname ?? ""} ${ride.user?.fullName?.lastname ?? ""}`
+    ? `${ride.user?.fullName?.firstname ?? ""} ${ride.user?.fullName?.lastname ?? ""}`.trim()
     : "";
-  const distanceKm = ride?.distance ? (ride.distance / 1000).toFixed(1) : "-";
+  const km = ride?.distance ? (ride.distance / 1000).toFixed(1) : "-";
+  const minutes = ride?.duration ? Math.round(ride.duration / 60) : "-";
+  const vehicle = getVehicle(ride?.vehicleType);
 
   return (
-    <div className="h-1/2 py-5 px-4 fixed bottom-0 w-full mb-2" ref={ref}>
-      <h1 className="text-center capitalize text-lg font-semibold">
-        a new ride is available
-      </h1>
-
-      {/* user info */}
-      <div className="userInfo flex items-center justify-between mt-5 py-1 px-4 bg-amber-300 rounded-2xl">
-        <div className="userDetail flex gap-2 items-center">
-          <img
-            src="https://xsgames.co/randomusers/assets/avatars/male/74.jpg"
-            alt="user image"
-            className="h-10 w-10 rounded-full"
-          />
-          <h3 className="text-base capitalize font-semibold">{userName}</h3>
+    <Sheet ref={ref}>
+      <div className="flex items-start justify-between">
+        <div>
+          <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-semibold text-white">
+            New ride request
+          </span>
+          <p className="mt-3 text-4xl font-extrabold tracking-tight">₹{ride?.fare ?? "--"}</p>
+          <p className="mt-1 text-sm text-muted">
+            {km} km · {minutes} min · {vehicle?.name ?? "Ride"} · Cash
+          </p>
         </div>
-
-        <div className="userDistance">
-          <h3 className="font-semibold text-base">{distanceKm} km</h3>
-        </div>
+        {vehicle && (
+          <span className="grid h-12 w-12 place-items-center rounded-xl bg-surface">
+            <vehicle.icon className="h-7 w-7" />
+          </span>
+        )}
       </div>
 
-      {/* location info */}
-      <div className="mt-3">
-        <div className="flex items-center gap-2 px-3 py-2 border-b-4 border-gray-200 mb-3">
-          <MdPinDrop className="h-5 w-5" />
-          <div className="text">
-            <h1 className="text-sm font-bold uppercase text-gray-500">pickup</h1>
-            <p className="text-base capitalize">{ride?.pickup}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-1 border-b-4 border-gray-200 mb-3 -mt-2">
-          <FaLocationDot className="h-5 w-5" />
-          <div className="text">
-            <h1 className="text-sm font-bold uppercase text-gray-500">drop</h1>
-            <p className="text-base capitalize">{ride?.destination}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between px-3 mb-3">
-          <span className="text-gray-600 capitalize">fare</span>
-          <span className="text-lg font-semibold">₹{ride?.fare}</span>
-        </div>
+      {/* rider */}
+      <div className="mt-5 flex items-center gap-3 rounded-2xl bg-surface p-3">
+        <Avatar name={userName} size="sm" />
+        <p className="font-medium capitalize">{userName || "Rider"}</p>
       </div>
 
-      {/* buttons */}
-      <div className="flex items-center justify-between mb-1">
-        <button
-          onClick={onIgnore}
-          className="bg-gray-500 px-10 py-2 rounded-lg text-white font-semibold capitalize"
-        >
-          ignore
+      <div className="mt-5">
+        <TripRoute pickup={ride?.pickup} destination={ride?.destination} />
+      </div>
+
+      <div className="mt-6 grid grid-cols-[1fr_2fr] gap-3">
+        <button onClick={onIgnore} disabled={loading} className="btn-secondary">
+          Ignore
         </button>
-        <button
-          onClick={onAccept}
-          className="bg-green-500 px-10 py-2 rounded-lg text-white font-semibold capitalize"
-        >
-          accept
+        <button onClick={onAccept} disabled={loading} className="btn-success">
+          {loading ? "Accepting..." : "Accept"}
         </button>
       </div>
-    </div>
+    </Sheet>
   );
 });
 

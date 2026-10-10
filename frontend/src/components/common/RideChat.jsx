@@ -2,17 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import { toast } from "react-toastify";
+import Avatar from "../ui/Avatar";
 
 // user aur driver dono ke liye ek hi chat screen
 // me = "user" ya "caption", taaki apne message right side dikhein
 const RideChat = ({ title, me, messages, onSend, onClose }) => {
     const [text, setText] = useState("");
     const [sending, setSending] = useState(false);
-    const bottomRef = useRef(null);
+    const listRef = useRef(null);
 
-    // naya message aate hi neeche scroll karo
+    // naya message aate hi sirf message list ko neeche scroll karo
+    // (scrollIntoView poora page bhi khiska deta hai, isliye nahi use kiya)
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        const list = listRef.current;
+        if (list) list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
     }, [messages]);
 
     const handleSend = async (e) => {
@@ -32,17 +35,23 @@ const RideChat = ({ title, me, messages, onSend, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        <div className="fixed inset-0 z-50 flex flex-col bg-white">
             {/* top bar */}
-            <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                <IoIosArrowRoundBack className="h-9 w-9 cursor-pointer" onClick={onClose} />
-                <h2 className="text-lg font-semibold capitalize">{title}</h2>
+            <div className="flex items-center gap-3 border-b border-line px-3 py-3">
+                <button onClick={onClose} aria-label="back" className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface">
+                    <IoIosArrowRoundBack className="h-8 w-8" />
+                </button>
+                <Avatar name={title} size="sm" />
+                <div>
+                    <h2 className="font-semibold capitalize leading-tight">{title}</h2>
+                    <p className="text-xs text-muted">{me === "user" ? "Your driver" : "Your rider"}</p>
+                </div>
             </div>
 
             {/* messages */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 bg-gray-50">
+            <div ref={listRef} className="flex flex-1 flex-col gap-2 overflow-y-auto bg-zinc-50 p-4">
                 {messages.length === 0 && (
-                    <p className="text-center text-gray-400 mt-10">no messages yet</p>
+                    <p className="mt-10 text-center text-sm text-muted">Say hi 👋 Messages are only kept for this ride.</p>
                 )}
 
                 {messages.map((msg, index) => {
@@ -50,32 +59,30 @@ const RideChat = ({ title, me, messages, onSend, onClose }) => {
                     return (
                         <div
                             key={index}
-                            className={`max-w-[75%] px-3 py-2 rounded-2xl ${mine ? "self-end bg-black text-white" : "self-start bg-gray-200 text-black"
-                                }`}
+                            className={`max-w-[75%] px-3.5 py-2 ${mine ? "self-end rounded-2xl rounded-br-md bg-ink text-white" : "self-start rounded-2xl rounded-bl-md border border-line bg-white text-ink"}`}
                         >
                             <p className="text-base break-words">{msg.text}</p>
-                            <p className={`text-[10px] mt-1 ${mine ? "text-gray-300" : "text-gray-500"}`}>
+                            <p className={`text-[10px] mt-1 ${mine ? "text-zinc-400" : "text-muted"}`}>
                                 {new Date(msg.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                             </p>
                         </div>
                     );
                 })}
-                <div ref={bottomRef} />
             </div>
 
             {/* message likhne ki jagah */}
-            <form onSubmit={handleSend} className="flex items-center gap-2 p-3 border-t border-gray-200">
+            <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-line p-3">
                 <input
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     maxLength={500}
-                    placeholder="type a message..."
-                    className="flex-1 bg-[#eee] px-4 py-3 rounded-full outline-none"
+                    placeholder="Type a message..."
+                    className="flex-1 rounded-full bg-surface px-4 py-3"
                 />
                 <button
                     type="submit"
                     disabled={sending || !text.trim()}
-                    className="bg-black text-white p-3 rounded-full disabled:opacity-50"
+                    className="grid h-12 w-12 place-items-center rounded-full bg-ink text-white disabled:opacity-40"
                 >
                     <IoSend className="h-5 w-5" />
                 </button>

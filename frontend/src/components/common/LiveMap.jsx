@@ -1,38 +1,30 @@
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { getVehicle } from "../../utils/vechiles";
 
-// Vite mein Leaflet ke default marker icon ka path toot jaata hai, isliye khud set karte hain
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
-// meri apni jagah ka neela marker
-const defaultIcon = L.icon({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
+// user ki jagah: neela dot jiske chaaron taraf lehar chalti hai (CSS: .user-dot)
+const userIcon = L.divIcon({
+    className: "",
+    html: '<div class="user-dot"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
 });
 
-// drivers ke liye gaadi ke hisaab se icon
-const VEHICLE_EMOJI = { car: "🚗", bike: "🏍️", auto: "🛺" };
+// har gaadi ke type ka ek icon, ek hi baar banao
 const vehicleIcons = {};
 const getVehicleIcon = (type) => {
-    const key = VEHICLE_EMOJI[type] ? type : "car";
-    if (!vehicleIcons[key]) {
-        vehicleIcons[key] = L.divIcon({
-            html: `<div style="font-size:26px;line-height:26px">${VEHICLE_EMOJI[key]}</div>`,
+    if (!vehicleIcons[type]) {
+        const emoji = getVehicle(type)?.emoji ?? "🚗";
+        vehicleIcons[type] = L.divIcon({
             className: "",
-            iconSize: [26, 26],
-            iconAnchor: [13, 13],
+            html: `<div class="vehicle-pin">${emoji}</div>`,
+            iconSize: [34, 34],
+            iconAnchor: [17, 17],
         });
     }
-    return vehicleIcons[key];
+    return vehicleIcons[type];
 };
 
 // location na mile tab tak Pune dikhao
@@ -49,17 +41,15 @@ const Recenter = ({ position }) => {
     return null;
 };
 
-// markers: [{ id, lat, lng, vehicleType }]  (dusre drivers)
-// onLocation: meri location milte hi call hota hai, [lat, lng] ke saath
+// markers = [{ id, lat, lng, vehicleType }]  (paas ke drivers)
+// onLocation(position) = jab bhi apni location mile, parent ko batao
 const LiveMap = ({ markers = [], onLocation }) => {
     const [position, setPosition] = useState(DEFAULT_POSITION);
     const [hasLocation, setHasLocation] = useState(false);
 
-    // onLocation badalne par watchPosition dobara shuru na ho, isliye ref
+    // onLocation ko ref mein rakho, taaki har render par watch dobara na lage
     const onLocationRef = useRef(onLocation);
-    useEffect(() => {
-        onLocationRef.current = onLocation;
-    }, [onLocation]);
+    onLocationRef.current = onLocation;
 
     useEffect(() => {
         if (!navigator.geolocation) {
@@ -70,10 +60,10 @@ const LiveMap = ({ markers = [], onLocation }) => {
         // location badalte hi naya position milta rahega
         const watchId = navigator.geolocation.watchPosition(
             (pos) => {
-                const newPosition = [pos.coords.latitude, pos.coords.longitude];
-                setPosition(newPosition);
+                const next = [pos.coords.latitude, pos.coords.longitude];
+                setPosition(next);
                 setHasLocation(true);
-                onLocationRef.current?.(newPosition);
+                onLocationRef.current?.(next);
             },
             (error) => {
                 console.log("location error:", error.message);
@@ -92,18 +82,15 @@ const LiveMap = ({ markers = [], onLocation }) => {
             zoomControl={false}
             className="h-full w-full"
         >
+            {/* CARTO light tiles: OSM data, par saaf safed-grey look */}
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                subdomains="abcd"
             />
 
-            {hasLocation && (
-                <Marker position={position} icon={defaultIcon}>
-                    <Popup>aap yahan ho</Popup>
-                </Marker>
-            )}
+            {hasLocation && <Marker position={position} icon={userIcon} />}
 
-            {/* aas-paas ke drivers */}
             {markers.map((marker) => (
                 <Marker
                     key={marker.id}

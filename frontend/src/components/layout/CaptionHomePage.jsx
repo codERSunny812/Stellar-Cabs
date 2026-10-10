@@ -1,12 +1,8 @@
-import { FaHome } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import imageUrl from "./../../assets/image/uber-black.png";
 import DriverStatus from "../feature/driver/DriverStatus";
 import DriverDetails from "../feature/driver/DriverDetails";
 import DriverRidePopUp from "../feature/driver/DriverRidePopUp";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
 import DriverRideDetail from "../feature/driver/DriverRideDetail";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -14,10 +10,14 @@ import { SocketContext } from "../../Context/SocketContext";
 import LiveMap from "../common/LiveMap";
 import RideChat from "../common/RideChat";
 import { useRideChat } from "../../hooks/useRideChat";
+import { useSheet } from "../../hooks/useSheet";
+import Logo from "../ui/Logo";
+import Avatar from "../ui/Avatar";
 
 const CaptionHomePageLayout = () => {
   // state variables
-  const [driverRideDetail, setDriverRideDetail] = useState(true);
+  const [online, setOnline] = useState(false); // driver online hai ya nahi
+  const [accepting, setAccepting] = useState(false);
   const [driverRidePopUp, setDriverRidePopUp] = useState(false);
   const [openDriverRidePanel, setOpenDriverRidePanel] = useState(false);
   const [captain, setCaptain] = useState(null);
@@ -37,9 +37,9 @@ const CaptionHomePageLayout = () => {
     positionRef.current = position;
   }, []);
 
-  const driverRideDetailRef = useRef(null);
-  const driverRidePopUpRef = useRef(null);
-  const driverDetailRef = useRef(null);
+  // neeche se aane wale panel (hooks/useSheet.js)
+  const driverRidePopUpRef = useSheet(driverRidePopUp);
+  const driverRideDetailRef = useSheet(openDriverRidePanel && !!acceptedRide);
 
   // driver ke stats (trips, distance, earning); ride finish hone par dobara bhi chalega
   const fetchStats = useCallback(async () => {
@@ -64,6 +64,7 @@ const CaptionHomePageLayout = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setCaptain(resp.data.caption);
+        setOnline(resp.data.caption?.status === "active");
       } catch (error) {
         console.log("profile fetch error:", error);
       }
@@ -99,7 +100,6 @@ const CaptionHomePageLayout = () => {
   useEffect(() => {
     const handleNewRide = (ride) => {
       setNewRide(ride);
-      setDriverRideDetail(false);
       setDriverRidePopUp(true);
     };
 
@@ -110,13 +110,19 @@ const CaptionHomePageLayout = () => {
   const handleIgnore = () => {
     setNewRide(null);
     setDriverRidePopUp(false);
-    setDriverRideDetail(true);
+  };
+
+  // offline hone par aayi hui ride ka popup bhi band
+  const handleStatusChange = (isOnline) => {
+    setOnline(isOnline);
+    if (!isOnline) handleIgnore();
   };
 
   const handleAccept = async () => {
     if (!newRide) return;
 
     try {
+      setAccepting(true);
       const token = localStorage.getItem("token");
       const resp = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
@@ -133,6 +139,8 @@ const CaptionHomePageLayout = () => {
       console.log("accept ride error:", error);
       toast.error(error.response?.data?.message || "could not accept ride");
       handleIgnore();
+    } finally {
+      setAccepting(false);
     }
   };
 
@@ -153,7 +161,6 @@ const CaptionHomePageLayout = () => {
       chat.closeChat();
       setAcceptedRide(null);
       setOpenDriverRidePanel(false);
-      setDriverRideDetail(true);
     } catch (error) {
       console.log("cancel ride error:", error);
       toast.error(error.response?.data?.message || "could not cancel ride");
@@ -200,7 +207,6 @@ const CaptionHomePageLayout = () => {
       chat.closeChat();
       setAcceptedRide(null);
       setOpenDriverRidePanel(false);
-      setDriverRideDetail(true);
       fetchStats(); // trips aur earning badh gaye
     } catch (error) {
       console.log("finish ride error:", error);
@@ -210,86 +216,52 @@ const CaptionHomePageLayout = () => {
     }
   };
 
-  // animation for driver ride details container
-  useGSAP(() => {
-    gsap.to(driverRideDetailRef.current, {
-      transform: driverRideDetail ? "translateY(0%)" : "translateY(100%)",
-      duration: 1,
-      ease: "power2.inOut",
-    });
-  }, [driverRideDetail]);
-
-  useGSAP(() => {
-    gsap.to(driverRidePopUpRef.current, {
-      transform: driverRidePopUp ? "translateY(0%)" : "translateY(100%)",
-      duration: 1,
-      ease: "power2.inOut",
-    });
-  }, [driverRidePopUp]);
-
-  useGSAP(() => {
-    gsap.to(driverDetailRef.current, {
-      height: openDriverRidePanel ? "75%" : "50%",
-      duration: 0.5,
-      ease: "power2.inOut",
-    });
-  }, [openDriverRidePanel]);
+  const name = captain ? `${captain.fullName?.firstName ?? ""} ${captain.fullName?.lastName ?? ""}`.trim() : "";
 
   return (
-    <div className="h-screen relative">
-      {/* driver navbar */}
-      <div className="fixed top-0 z-10 p-3 mx-3 flex gap-2.5 items-center justify-between w-full">
-        <div className="w-1/5 flex items-center justify-center ">
-          <img src={imageUrl} alt="app logo" className="h-10 w-16" />
+    <div className="relative flex h-full flex-col overflow-hidden bg-white">
+      {/* upar: logo, online switch, account */}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-2 p-4">
+        <div className="rounded-full bg-white px-3 py-1.5 shadow-md">
+          <Logo className="text-lg" />
         </div>
 
-        {/* caption status changed */}
-        <div className="w-3/5">
-          <DriverStatus
-            captain={captain}
-            setDriverRideDetail={setDriverRideDetail}
-            setDriverRidePopUp={setDriverRidePopUp}
-          />
-        </div>
+        {/* ride chal rahi ho to offline nahi ho sakte */}
+        <DriverStatus online={online} onChange={handleStatusChange} disabled={!captain || !!acceptedRide} />
 
-        {/* account page ka link */}
-        <div className="w-1/5 flex items-center justify-center">
-          <Link to="/caption/account">
-            <FaHome className="h-10 w-10 rounded-full bg-white p-2" />
-          </Link>
-        </div>
+        <Link to="/caption/account" aria-label="account" className="rounded-full shadow-md">
+          <Avatar name={name} size="sm" />
+        </Link>
       </div>
 
       {/* live map */}
-      <div className="h-1/2 w-full relative z-0">
+      <div className="relative z-0 flex-1">
         <LiveMap onLocation={handleLocation} />
       </div>
 
-      {/* end container for driver detail */}
-      <div ref={driverDetailRef} className="absolute z-10 bottom-0 w-full bg-white">
-        {/* driver over all detail */}
-        <DriverDetails ref={driverRideDetailRef} captain={captain} stats={stats} />
+      {/* driver ka card: naam, kamai, stats */}
+      <DriverDetails captain={captain} stats={stats} online={online} />
 
-        {/* nayi ride ka popup */}
-        <DriverRidePopUp
-          ref={driverRidePopUpRef}
-          ride={newRide}
-          onIgnore={handleIgnore}
-          onAccept={handleAccept}
-        />
+      {/* nayi ride ka popup */}
+      <DriverRidePopUp
+        ref={driverRidePopUpRef}
+        ride={newRide}
+        onIgnore={handleIgnore}
+        onAccept={handleAccept}
+        loading={accepting}
+      />
 
-        {openDriverRidePanel && acceptedRide && (
-          <DriverRideDetail
-            ride={acceptedRide}
-            onMessage={chat.openChat}
-            onCancel={handleCancelRide}
-            onStart={handleStartRide}
-            onFinish={handleFinishRide}
-            unread={chat.unread}
-            loading={rideActionLoading}
-          />
-        )}
-      </div>
+      {/* accept ki hui ride */}
+      <DriverRideDetail
+        ref={driverRideDetailRef}
+        ride={acceptedRide}
+        onMessage={chat.openChat}
+        onCancel={handleCancelRide}
+        onStart={handleStartRide}
+        onFinish={handleFinishRide}
+        unread={chat.unread}
+        loading={rideActionLoading}
+      />
 
       {/* user se chat */}
       {chat.isOpen && acceptedRide && (

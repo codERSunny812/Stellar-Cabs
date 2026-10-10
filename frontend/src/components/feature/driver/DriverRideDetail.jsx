@@ -1,136 +1,107 @@
-import { useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { IoCall } from "react-icons/io5";
 import { FaMessage } from "react-icons/fa6";
-import { FcCancel } from "react-icons/fc";
+import { MdClose } from "react-icons/md";
+import Sheet from "../../ui/Sheet";
+import Avatar from "../../ui/Avatar";
+import TripRoute from "../../ui/TripRoute";
+import IconButton from "../../ui/IconButton";
 
-const DriverRideDetail = ({ ride, onMessage, onCancel, onStart, onFinish, unread = 0, loading = false }) => {
-    const [otp, setOtp] = useState("");
+// accept ki hui ride: rider, raasta, OTP se start, aur finish
+const DriverRideDetail = forwardRef(
+    ({ ride, onMessage, onCancel, onStart, onFinish, unread = 0, loading = false }, ref) => {
+        const [otp, setOtp] = useState("");
 
-    const userName = `${ride.user?.fullName?.firstname ?? ""} ${ride.user?.fullName?.lastname ?? ""}`;
-    const isOngoing = ride.status === "ongoing";
+        // nayi ride par purana OTP saaf
+        useEffect(() => {
+            setOtp("");
+        }, [ride?._id]);
 
-    return (
-        <div className="flex flex-col bg-gray-300">
-            {/* top part: ride ka status */}
-            <div className="flex items-center justify-between px-4 py-2">
-                <h3 className="font-semibold">#{ride._id.slice(-6)}</h3>
-                <span
-                    className={`text-sm font-semibold capitalize px-3 py-1 rounded-full ${isOngoing ? "bg-green-600 text-white" : "bg-amber-400 text-white"
-                        }`}
-                >
-                    {isOngoing ? "ride in progress" : "go to pickup"}
-                </span>
-            </div>
+        const userName = `${ride?.user?.fullName?.firstname ?? ""} ${ride?.user?.fullName?.lastname ?? ""}`.trim();
+        const isOngoing = ride?.status === "ongoing";
+        const km = ride?.distance ? (ride.distance / 1000).toFixed(1) : "-";
+        const minutes = ride?.duration ? Math.round(ride.duration / 60) : "-";
 
-            <div className="border-2 border-gray-600"></div>
+        const handleStart = (e) => {
+            e.preventDefault();
+            if (otp.length !== 4) return;
+            onStart(otp);
+        };
 
-            {/* customer info */}
-            <div className="riderInfo flex items-center justify-between py-1 px-2 rounded-lg mt-2">
-                <div className="riderData flex items-center px-3 gap-5">
-                    <img
-                        src="https://xsgames.co/randomusers/assets/avatars/male/74.jpg"
-                        alt="rider image"
-                        className="h-12 w-12 rounded-lg"
-                    />
-                    <h3 className="text-xl font-medium capitalize">{userName}</h3>
-                </div>
-
-                <div className="fareAmount text-lg font-semibold px-3">₹{ride.fare}</div>
-            </div>
-
-            {/* ride information */}
-            <div className="mt-1 bg-white">
-                <div className="pickup py-1 px-3">
-                    <h2 className="text-lg uppercase text-gray-500 font-semibold">pickup</h2>
-                    <h4 className="text-base capitalize">{ride.pickup}</h4>
-                </div>
-
-                <div className="drop py-1 px-3">
-                    <h2 className="text-lg uppercase text-gray-500 font-semibold">drop</h2>
-                    <h4 className="text-base capitalize">{ride.destination}</h4>
-                </div>
-
-                <div className="tripFare py-1 px-3">
-                    <h3 className="text-xl text-gray-500 uppercase font-semibold">trip</h3>
-                    <div className="flex items-center justify-between capitalize">
-                        <h3>distance</h3>
-                        <h4>{(ride.distance / 1000).toFixed(1)} km</h4>
-                    </div>
-                    <div className="flex items-center justify-between capitalize">
-                        <h3>time</h3>
-                        <h4>{Math.round(ride.duration / 60)} min</h4>
-                    </div>
-                    <div className="flex items-center justify-between capitalize font-semibold">
-                        <h3>fare</h3>
-                        <h4>₹{ride.fare}</h4>
-                    </div>
-                </div>
-
-                {/* action buttons */}
-                <div className="flex items-center justify-around mt-4 mb-2">
-                    {/* call: phone number aane ke baad chalega */}
-                    <div className="flex items-center flex-col opacity-40" title="phone number not added yet">
-                        <IoCall className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
-                        <p className="text-base">call</p>
-                    </div>
-
-                    {/* message: chat kholo */}
-                    <button onClick={onMessage} className="flex items-center flex-col relative">
-                        <FaMessage className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
-                        {unread > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
-                                {unread}
-                            </span>
-                        )}
-                        <p className="text-base">message</p>
-                    </button>
-
-                    {/* cancel: sirf ride shuru hone se pehle */}
-                    {!isOngoing && (
-                        <button onClick={onCancel} className="flex items-center flex-col">
-                            <FcCancel className="h-12 w-12 bg-gray-300 p-3 rounded-full" />
-                            <p className="text-base">cancel</p>
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            {/* pickup par: user se OTP lekar ride shuru karo */}
-            {!isOngoing && (
-                <div className="w-full p-3 bg-white">
-                    <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={4}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                        placeholder="enter 4 digit OTP from user"
-                        className="bg-[#eee] w-full px-4 py-3 rounded-lg text-lg tracking-widest mb-2"
-                    />
-                    <button
-                        onClick={() => onStart(otp)}
-                        disabled={otp.length !== 4 || loading}
-                        className="py-4 px-5 bg-amber-400 w-full text-lg text-white font-semibold capitalize rounded-lg disabled:opacity-50"
+        return (
+            <Sheet ref={ref}>
+                {/* status */}
+                <div className="flex items-center justify-between">
+                    <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${isOngoing ? "bg-green-50 text-brand" : "bg-amber-50 text-amber-700"
+                            }`}
                     >
-                        {loading ? "starting..." : "start ride"}
-                    </button>
+                        {isOngoing ? "Trip in progress" : "Heading to pickup"}
+                    </span>
+                    <span className="text-xs text-muted">#{ride?._id?.slice(-6)}</span>
                 </div>
-            )}
 
-            {/* ride chal rahi hai: manzil par finish */}
-            {isOngoing && (
-                <div className="w-full">
-                    <button
-                        onClick={onFinish}
-                        disabled={loading}
-                        className="py-4 px-5 bg-green-600 w-full text-lg text-white font-semibold capitalize disabled:opacity-50"
-                    >
-                        {loading ? "finishing..." : "finish ride"}
-                    </button>
+                {/* rider */}
+                <div className="mt-4 flex items-center gap-3">
+                    <Avatar name={userName} />
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-lg font-semibold capitalize">{userName}</p>
+                        <p className="text-sm text-muted">Cash payment</p>
+                    </div>
+                    <p className="text-2xl font-bold">₹{ride?.fare}</p>
                 </div>
-            )}
-        </div>
-    );
-};
+
+                {/* call / message / cancel */}
+                <div className="mt-5 flex justify-around">
+                    <IconButton icon={IoCall} label="call" disabled />
+                    <IconButton icon={FaMessage} label="message" onClick={onMessage} badge={unread} />
+                    {/* ride shuru hone ke baad cancel nahi */}
+                    <IconButton icon={MdClose} label="cancel" tone="danger" onClick={onCancel} disabled={isOngoing || loading} />
+                </div>
+
+                <div className="mt-5 border-t border-line pt-5">
+                    <TripRoute pickup={ride?.pickup} destination={ride?.destination} />
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl bg-surface p-3 text-center">
+                        <p className="eyebrow">distance</p>
+                        <p className="mt-0.5 font-bold">{km} km</p>
+                    </div>
+                    <div className="rounded-2xl bg-surface p-3 text-center">
+                        <p className="eyebrow">time</p>
+                        <p className="mt-0.5 font-bold">{minutes} min</p>
+                    </div>
+                </div>
+
+                {isOngoing ? (
+                    <button onClick={onFinish} disabled={loading} className="btn-primary mt-6">
+                        {loading ? "Finishing..." : `Complete ride · collect ₹${ride?.fare}`}
+                    </button>
+                ) : (
+                    // rider se 4 digit PIN lo
+                    <form onSubmit={handleStart} className="mt-6">
+                        <label htmlFor="otp" className="label">Ask the rider for their PIN</label>
+                        <div className="flex gap-3">
+                            <input
+                                id="otp"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
+                                maxLength={4}
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                                placeholder="• • • •"
+                                className="input w-36 shrink-0 text-center text-xl font-bold tracking-[0.5em]"
+                            />
+                            <button type="submit" disabled={loading || otp.length !== 4} className="btn-success">
+                                {loading ? "Starting..." : "Start ride"}
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </Sheet>
+        );
+    }
+);
 
 export default DriverRideDetail;
