@@ -1,29 +1,28 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BiArrowBack } from "react-icons/bi";
-import { FaUserCircle } from "react-icons/fa";
+import { FiLogOut, FiMail, FiUser } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { UserContext } from "../Context/UserContext";
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import Avatar from "../components/ui/Avatar";
 
 const UserAccount = () => {
     const [user, setUser] = useState(null);
+    const [signingOut, setSigningOut] = useState(false);
     const { setUserData } = useContext(UserContext);
     const navigate = useNavigate();
 
-    // page khulte hi user ki profile lao
+    // page khulte hi profile lao
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const resp = await axios.get(`${BASE_URL}/users/profile`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                const resp = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/profile`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
                 setUser(resp.data.data);
             } catch (error) {
-                console.log("profile fetch error:", error);
+                console.log("profile error:", error);
             }
         };
 
@@ -32,9 +31,9 @@ const UserAccount = () => {
 
     const handleSignOut = async () => {
         try {
-            const token = localStorage.getItem("token");
-            await axios.get(`${BASE_URL}/users/logout`, {
-                headers: { Authorization: `Bearer ${token}` },
+            setSigningOut(true);
+            await axios.get(`${import.meta.env.VITE_BASE_URL}/users/logout`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
         } catch (error) {
             console.log("logout error:", error);
@@ -43,41 +42,65 @@ const UserAccount = () => {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
             setUserData(null);
-            toast.success("signed out successfully");
+            toast.success("signed out");
             navigate("/login");
         }
     };
 
-    const fullName = user
-        ? `${user.fullName?.firstname ?? ""} ${user.fullName?.lastname ?? ""}`
-        : "Loading...";
+    const name = user ? `${user.fullName?.firstname ?? ""} ${user.fullName?.lastname ?? ""}`.trim() : "";
 
     return (
-        <div className="h-screen flex flex-col bg-gray-100">
+        <div className="flex h-full flex-col bg-zinc-50">
             {/* top bar */}
-            <div className="flex items-center gap-4 p-4 bg-white">
-                <Link to="/home-page">
-                    <BiArrowBack className="h-8 w-8" />
+            <div className="flex items-center gap-2 bg-white px-3 py-3">
+                <Link to="/home-page" aria-label="back" className="grid h-10 w-10 place-items-center rounded-full hover:bg-surface">
+                    <BiArrowBack className="h-6 w-6" />
                 </Link>
-                <h1 className="text-xl font-semibold capitalize">account</h1>
+                <h1 className="text-lg font-semibold">Account</h1>
             </div>
 
             {/* profile */}
-            <div className="flex items-center gap-4 p-5 bg-white mt-2">
-                <FaUserCircle className="h-16 w-16 text-gray-400" />
-                <div>
-                    <h2 className="text-lg font-semibold capitalize">{fullName}</h2>
-                    <p className="text-sm text-gray-600">{user?.email}</p>
+            <div className="flex flex-col items-center bg-white px-5 pt-4 pb-7">
+                {user ? (
+                    <Avatar name={name} size="lg" />
+                ) : (
+                    <div className="h-16 w-16 animate-pulse rounded-full bg-surface" />
+                )}
+                {user ? (
+                    <>
+                        <h2 className="mt-3 text-xl font-bold capitalize">{name}</h2>
+                        <p className="text-sm text-muted">{user.email}</p>
+                    </>
+                ) : (
+                    <>
+                        <div className="mt-3 h-5 w-32 animate-pulse rounded bg-surface" />
+                        <div className="mt-2 h-4 w-44 animate-pulse rounded bg-surface" />
+                    </>
+                )}
+            </div>
+
+            {/* details */}
+            <div className="mx-4 mt-4 overflow-hidden rounded-2xl bg-white">
+                <div className="flex items-center gap-3 border-b border-line px-4 py-3.5">
+                    <FiUser className="h-5 w-5 text-muted" />
+                    <div>
+                        <p className="text-xs text-muted">Name</p>
+                        <p className="font-medium capitalize">{name || "--"}</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3 px-4 py-3.5">
+                    <FiMail className="h-5 w-5 text-muted" />
+                    <div>
+                        <p className="text-xs text-muted">Email</p>
+                        <p className="font-medium">{user?.email || "--"}</p>
+                    </div>
                 </div>
             </div>
 
             {/* sign out */}
             <div className="mt-auto p-5">
-                <button
-                    onClick={handleSignOut}
-                    className="w-full py-3 bg-red-500 text-white text-lg font-semibold rounded-lg capitalize"
-                >
-                    sign out
+                <button onClick={handleSignOut} disabled={signingOut} className="btn-danger">
+                    <FiLogOut /> {signingOut ? "Signing out..." : "Sign out"}
                 </button>
             </div>
         </div>

@@ -1,9 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
-import logoImg from "../assets/image/uber-black.png";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
+import { FaArrowRight } from "react-icons/fa6";
 import axios from "axios";
 import { toast } from "react-toastify";
 import ShowCabs from "../components/ShowCabs";
@@ -16,6 +13,9 @@ import { SocketContext } from "../Context/SocketContext";
 import RideChat from "../components/common/RideChat";
 import LiveMap from "../components/common/LiveMap";
 import { useRideChat } from "../hooks/useRideChat";
+import { useSheet } from "../hooks/useSheet";
+import Logo from "../components/ui/Logo";
+import Avatar from "../components/ui/Avatar";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -23,6 +23,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const authHeaders = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 });
+
 
 const HomePage = () => {
   const [pickUpLocation, setPickUpLocation] = useState("");
@@ -50,12 +51,13 @@ const HomePage = () => {
   // driver se chat (accept hone ke baad)
   const chat = useRideChat(socket, ride?._id);
 
-  const confirmVechilePanelRef = useRef(null);
-  const vechilePanelRef = useRef(null);
-  const vechileFoundRef = useRef(null);
-  const waitingForDriverRef = useRef(null);
-  const ridingRef = useRef(null);
-  const rideCompletedRef = useRef(null);
+  // har panel ka ref; open hone par neeche se upar aata hai (hooks/useSheet.js)
+  const vechilePanelRef = useSheet(vechilePanel);
+  const confirmVechilePanelRef = useSheet(confirmVechilePanel);
+  const vechileFoundRef = useSheet(vechileFound);
+  const waitingForDriverRef = useSheet(waitingForDriver);
+  const ridingRef = useSheet(riding);
+  const rideCompletedRef = useSheet(rideCompleted);
 
   // page khulte hi user ki profile lao
   useEffect(() => {
@@ -233,105 +235,80 @@ const HomePage = () => {
     }
   };
 
-  // gsap animations to show popups
-  // yPercent panel ki height ke hisaab se chalta hai, isliye content badhne par bhi panel poora chhupa rehta hai
-  useGSAP(() => {
-    gsap.to(vechilePanelRef.current, {
-      yPercent: vechilePanel ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: vechilePanel ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [vechilePanel]);
-
-  useGSAP(() => {
-    gsap.to(confirmVechilePanelRef.current, {
-      yPercent: confirmVechilePanel ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: confirmVechilePanel ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [confirmVechilePanel]);
-
-  useGSAP(() => {
-    gsap.to(vechileFoundRef.current, {
-      yPercent: vechileFound ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: vechileFound ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [vechileFound]);
-
-  useGSAP(() => {
-    gsap.to(waitingForDriverRef.current, {
-      yPercent: waitingForDriver ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: waitingForDriver ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [waitingForDriver]);
-
-  useGSAP(() => {
-    gsap.to(ridingRef.current, {
-      yPercent: riding ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: riding ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [riding]);
-
-  useGSAP(() => {
-    gsap.to(rideCompletedRef.current, {
-      yPercent: rideCompleted ? 0 : 100, // apni height ka 100% neeche = chhupa hua
-      duration: rideCompleted ? 1 : 0.5,
-      ease: "power2.inOut",
-    });
-  }, [rideCompleted]);
+  const userName = user ? `${user.fullName?.firstname ?? ""} ${user.fullName?.lastname ?? ""}`.trim() : "";
+  const nearbyCount = nearbyCaptains.length;
 
   return (
-    <div className="h-screen relative overflow-hidden">
-      <img src={logoImg} alt="uber logo" className="w-16 absolute left-5 top-5 z-10" />
-
-      {/* account page ka button */}
-      <Link to="/user/account" className="absolute right-5 top-4 z-10">
-        <FaUserCircle className="h-10 w-10 bg-white rounded-full text-gray-800" />
-      </Link>
+    <div className="relative flex h-full flex-col overflow-hidden bg-white">
+      {/* upar: logo aur account button, map ke upar tairte hue */}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4">
+        <div className="rounded-full bg-white px-3 py-1.5 shadow-md">
+          <Logo className="text-lg" />
+        </div>
+        <Link to="/user/account" aria-label="account" className="rounded-full shadow-md">
+          <Avatar name={userName} size="sm" />
+        </Link>
+      </div>
 
       {/* live map: user ki jagah aur paas ke drivers */}
-      <div className="h-[65vh] w-full relative z-0">
+      <div className="relative z-0 flex-1">
         <LiveMap markers={nearbyCaptains} onLocation={handleLocation} />
       </div>
 
-      {/* pointer-events-none: khaali hisse par click neeche map tak jaaye */}
-      <div className="absolute top-0 h-screen w-full flex flex-col justify-end pointer-events-none">
-        {/* location search form */}
-        <div className="bg-white p-5 pointer-events-auto">
-          <h4 className="text-2xl font-semibold capitalize">find your trip</h4>
-          <p className="text-sm text-gray-500 mt-1">
-            {nearbyCaptains.length > 0
-              ? `${nearbyCaptains.length} driver${nearbyCaptains.length > 1 ? "s" : ""} nearby`
-              : "no drivers nearby right now"}
-          </p>
+      {/* "kahan jaana hai?" card */}
+      <div className="relative z-10 -mt-6 rounded-t-3xl bg-white px-5 pt-5 pb-6 shadow-[0_-8px_30px_rgb(0_0_0/0.08)]">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted capitalize">{userName ? `Hi, ${user.fullName?.firstname}` : "Hi there"} 👋</p>
+            <h4 className="text-2xl font-bold">Where to?</h4>
+          </div>
 
-          <form onSubmit={submitHandler} className="flex flex-col gap-2.5">
+          {/* paas ke drivers ki ginti */}
+          <span className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-medium">
+            <span className={`h-2 w-2 rounded-full ${nearbyCount > 0 ? "bg-brand" : "bg-zinc-400"}`} />
+            {nearbyCount > 0 ? `${nearbyCount} driver${nearbyCount > 1 ? "s" : ""} nearby` : "No drivers nearby"}
+          </span>
+        </div>
+
+        <form onSubmit={submitHandler} className="mt-4">
+          {/* dono input ek dabbe mein, baayein dot-line */}
+          <div className="relative rounded-2xl bg-surface">
+            <div className="pointer-events-none absolute top-[22px] bottom-[22px] left-4 flex flex-col items-center">
+              <span className="h-2.5 w-2.5 rounded-full bg-ink" />
+              <span className="my-1 w-px flex-1 bg-zinc-400" />
+              <span className="h-2.5 w-2.5 bg-ink" />
+            </div>
+
             <input
               type="text"
               value={pickUpLocation}
               onChange={(e) => setPickUpLocation(e.target.value)}
-              className="bg-[#eee] px-8 py-2 text-base rounded-lg w-full mt-5"
-              placeholder="enter your pickup location"
+              className="w-full bg-transparent py-3.5 pr-4 pl-10 placeholder:text-zinc-500"
+              placeholder="Pickup location"
             />
+            <div className="mr-4 ml-10 border-t border-line" />
             <input
               type="text"
               value={dropLocation}
               onChange={(e) => setDropLocation(e.target.value)}
-              className="bg-[#eee] px-8 py-2 text-base rounded-lg mt-3"
-              placeholder="enter your drop location"
+              className="w-full bg-transparent py-3.5 pr-4 pl-10 placeholder:text-zinc-500"
+              placeholder="Where are you going?"
             />
-            <button
-              type="submit"
-              disabled={loadingFare}
-              className="bg-black text-white py-3 rounded-lg mt-3 text-lg font-semibold capitalize disabled:opacity-60"
-            >
-              {loadingFare ? "finding fares..." : "find ride"}
-            </button>
-          </form>
-        </div>
+          </div>
+
+          <button type="submit" disabled={loadingFare} className="btn-primary mt-4">
+            {loadingFare ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Finding fares...
+              </>
+            ) : (
+              <>
+                Find a ride <FaArrowRight />
+              </>
+            )}
+          </button>
+        </form>
       </div>
 
       <ShowCabs
