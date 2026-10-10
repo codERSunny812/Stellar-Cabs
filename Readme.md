@@ -6,13 +6,13 @@ A real-time ride-hailing app inspired by Uber, with separate **rider** and **dri
 
 > The backend runs on Render's free tier, which sleeps when idle. The first request can take about 50 seconds; after that it is fast.
 
-<!-- Screenshots: put images in docs/screenshots/ and uncomment
+Screenshots: put images in docs/screenshots/ and uncomment
 <p align="center">
-  <img src="docs/screenshots/rider-home.png" width="230" />
-  <img src="docs/screenshots/choose-ride.png" width="230" />
-  <img src="docs/screenshots/driver-request.png" width="230" />
+  <img src="docs/rider-home.png" width="230" />
+  <img src="docs/choose-ride.png" width="230" />
+  <img src="docs/driver_request.png" width="230" />
 </p>
--->
+
 
 ---
 
